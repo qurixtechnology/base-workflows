@@ -1,5 +1,0 @@
-{
-    "yaml.schemas": {
-        "https://json.schemastore.org/github-workflow.json": "file:///Users/fernando/Projects/qurix/base_workflows/.github/workflows/do_python_tests.yml"
-    }
-}

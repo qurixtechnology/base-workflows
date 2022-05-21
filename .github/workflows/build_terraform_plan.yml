@@ -2,6 +2,10 @@ name: Terraform Build (init/plan)
 
 on:
   workflow_call:
+      input:
+        build_path:
+          required: true
+          type: string
       secrets:
         TF_BACKEND_RG: 
           required: true
@@ -14,6 +18,9 @@ jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.build_path }}
     steps:
       - uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v2

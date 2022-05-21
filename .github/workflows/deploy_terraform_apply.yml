@@ -1,4 +1,4 @@
-name: Terraform Build (init/plan)
+name: Terraform Deploy (init/apply)
 
 on:
   workflow_call:

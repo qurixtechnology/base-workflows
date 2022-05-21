@@ -13,6 +13,12 @@ on:
           required: true
         TF_BACKEND_CONTAINER_NAME:
           required: true
+        AZURE_CLIENT_ID:
+          required: true
+        AZURE_SUBSCRIPTION_ID:
+          required: true
+        AZURE_TENANT_ID:
+          required: true
 
 jobs:
   terraform:

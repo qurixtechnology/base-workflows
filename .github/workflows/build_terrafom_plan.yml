@@ -12,8 +12,6 @@ on:
         TF_BACKEND_SA:
           required: true
         TF_BACKEND_CONTAINER_NAME:
-          required: true 
-        GITHUB_TOKEN:
           required: true
 
 jobs:

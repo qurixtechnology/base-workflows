@@ -2,10 +2,6 @@ name: Terraform Build (init/plan)
 
 on:
   workflow_call:
-      inputs:
-        python_version:
-          required: true
-          type: string
       secrets:
         TF_BACKEND_RG: 
           required: true

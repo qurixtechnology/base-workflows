@@ -1,0 +1,12 @@
+name: Terraform Build (init/plan)
+
+on:
+  workflow_call:
+  
+jobs:
+  deploy_terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          echo "Deploying" 

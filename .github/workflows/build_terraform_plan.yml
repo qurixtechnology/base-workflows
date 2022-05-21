@@ -2,7 +2,7 @@ name: Terraform Build (init/plan)
 
 on:
   workflow_call:
-      input:
+      inputs:
         build_path:
           required: true
           type: string

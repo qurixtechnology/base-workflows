@@ -6,6 +6,16 @@ on:
         build_path:
           required: true
           type: string
+        environment:
+          required: true
+          type: string
+        use_case:
+          required: true
+          type: string
+        aks_dns_prefix:
+          required: true
+          type: string
+        
       secrets:
         TF_BACKEND_RG: 
           required: true
@@ -26,16 +36,20 @@ on:
 
 jobs:
   terraform:
+    name: 'Terraform Plan'
+
     env:
       ARM_CLIENT_ID: ${{ secrets.AZ_AD_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZ_AD_CLIENT_SECRET }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZ_SUBSCRIPTION_ID }}
       ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
-    name: 'Terraform'
+
     runs-on: ubuntu-latest
+
     defaults:
       run:
-        working-directory: ${{ inputs.build_path }}
+        working-directory: ${{ inputs.BUILD_PATH }}
+        
     steps:
       - uses: azure/login@v1
         with:
@@ -43,22 +57,32 @@ jobs:
       - uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v2
 
-      - name: Terraform Format
+      - name: Terraform format
         id: fmt
         run: terraform fmt -check
         continue-on-error: true
 
-      - name: Terraform Init
+      - name: Terraform init
         id: init
         run: |
           terraform init -backend-config="resource_group_name=${{ secrets.TF_BACKEND_RG }}" \
                          -backend-config="storage_account_name=${{ secrets.TF_BACKEND_SA }}" \
                          -backend-config="container_name=${{ secrets.TF_BACKEND_CONTAINER_NAME }}"
 
-      - name: Terraform Validate
+      - name: Terraform validate
         id: validate
-        run: terraform validate -no-color
+        run: terraform validate
 
-      - name: Terraform Plan
+      - name: Terraform plan
         id: plan
-        run: terraform plan -no-color
+        run: |
+          terraform plan -var environment=${{ inputs.environment }} \
+                          -var use_case=${{ inputs.use_case }} \
+                          -var azad_admin_login=${{ secrets.AD_ADMIN }} \
+                          -var azad_admin_object_id=${{ secrets.AD_ADMIN_OBJECT_ID }} \
+                          -var subscription_id=${{ secrets.AZ_SUBSCRIPTION_ID }} \
+                          -var tenant_id=${{ secrets.AZ_TENANT_ID }} \
+                          -var service_principal_id=${{ secrets.AZ_AD_CLIENT_ID }} \
+                          -var service_principal_secret=${{ secrets.AZ_AD_CLIENT_SECRET }} \
+                          -var aks_ssh_key='$(SSH_KEY)' \
+                          -var aks_dns_prefix=${{ inputs.aks_dns_prefix }}

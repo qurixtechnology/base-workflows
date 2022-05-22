@@ -3,16 +3,16 @@ name: Terraform Build (init/plan)
 on:
   workflow_call:
       inputs:
-        build_path:
+        BUILD_PATH:
           required: true
           type: string
-        environment:
+        ENVIRONMENT:
           required: true
           type: string
-        use_case:
+        USE_CASE:
           required: true
           type: string
-        aks_dns_prefix:
+        AKS_DNS_PREFIX:
           required: true
           type: string
         
@@ -33,10 +33,13 @@ on:
           required: true
         AZ_TENANT_ID:
           required: true
+        SSH_KEY:
+          required: true
 
 jobs:
   terraform:
     name: 'Terraform Plan'
+    environment: ${{ inputs.ENVIRONMENT }}
 
     env:
       ARM_CLIENT_ID: ${{ secrets.AZ_AD_CLIENT_ID }}
@@ -49,7 +52,7 @@ jobs:
     defaults:
       run:
         working-directory: ${{ inputs.BUILD_PATH }}
-        
+
     steps:
       - uses: azure/login@v1
         with:
@@ -76,13 +79,13 @@ jobs:
       - name: Terraform plan
         id: plan
         run: |
-          terraform plan -var environment=${{ inputs.environment }} \
-                          -var use_case=${{ inputs.use_case }} \
+          terraform plan -var environment=${{ inputs.ENVIRONMENT }} \
+                          -var use_case=${{ inputs.USE_CASE }} \
                           -var azad_admin_login=${{ secrets.AD_ADMIN }} \
                           -var azad_admin_object_id=${{ secrets.AD_ADMIN_OBJECT_ID }} \
                           -var subscription_id=${{ secrets.AZ_SUBSCRIPTION_ID }} \
                           -var tenant_id=${{ secrets.AZ_TENANT_ID }} \
                           -var service_principal_id=${{ secrets.AZ_AD_CLIENT_ID }} \
                           -var service_principal_secret=${{ secrets.AZ_AD_CLIENT_SECRET }} \
-                          -var aks_ssh_key='$(SSH_KEY)' \
-                          -var aks_dns_prefix=${{ inputs.aks_dns_prefix }}
+                          -var aks_ssh_key='${{ secrets.SSH_KEY }}' \
+                          -var aks_dns_prefix=${{ inputs.AKS_DNS_PREFIX }}

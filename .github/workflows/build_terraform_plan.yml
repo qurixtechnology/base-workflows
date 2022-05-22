@@ -15,9 +15,22 @@ on:
           required: true
         AZURE_CREDENTIALS:
           required: true
+        AZ_CLIENT_ID: 
+          required: true
+        AZ_CLIENT_SECRET:
+          required: true
+        AZ_SUBSCRIPTION_ID:
+          required: true
+        AZ_TENANT_ID:
+          required: true
 
 jobs:
   terraform:
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZ_AD_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZ_AD_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZ_AD_TENANT_ID }}
     name: 'Terraform'
     runs-on: ubuntu-latest
     defaults:

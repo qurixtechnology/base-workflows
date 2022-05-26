@@ -3,17 +3,22 @@ name: Do Python Tests
 on:
   workflow_call:
       inputs:
-        python_version:
+        PYTHON_VERSION:
+          required: true
+          type: string
+        BUILD_PATH:
           required: true
           type: string
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        # Working directory for all 'run' steps
+        working-directory: ${{ inputs.BUILD_PATH }} 
     steps:
       - uses: actions/checkout@v3
-
       - name: Set up Python 
         uses: actions/setup-python@v3
         with:

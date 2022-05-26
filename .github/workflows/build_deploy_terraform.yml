@@ -1,4 +1,4 @@
-name: Terraform Build (init/plan)
+name: Terraform Deployment
 
 on:
   workflow_call:
@@ -38,7 +38,7 @@ on:
 
 jobs:
   terraform:
-    name: 'Terraform Plan'
+    name: 'Terraform Init/Plan/Apply'
     environment: ${{ inputs.ENVIRONMENT }}
 
     env:
@@ -78,8 +78,58 @@ jobs:
 
       - name: Terraform plan
         id: plan
+        if: github.event_name == 'pull_request'
         run: |
           terraform plan -var environment=${{ inputs.ENVIRONMENT }} \
+                          -var use_case=${{ inputs.USE_CASE }} \
+                          -var azad_admin_login=${{ secrets.AD_ADMIN }} \
+                          -var azad_admin_object_id=${{ secrets.AD_ADMIN_OBJECT_ID }} \
+                          -var subscription_id=${{ secrets.AZ_SUBSCRIPTION_ID }} \
+                          -var tenant_id=${{ secrets.AZ_TENANT_ID }} \
+                          -var service_principal_id=${{ secrets.AZ_AD_CLIENT_ID }} \
+                          -var service_principal_secret=${{ secrets.AZ_AD_CLIENT_SECRET }} \
+                          -var aks_ssh_key='${{ secrets.SSH_KEY }}' \
+                          -var aks_dns_prefix=${{ inputs.AKS_DNS_PREFIX }}
+        continue-on-error: true
+
+      - name: Update Pull Request
+        uses: actions/github-script@6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+            })
+            
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          terraform apply -auto-approve -input=false \
+                          -var environment=${{ inputs.ENVIRONMENT }} \
                           -var use_case=${{ inputs.USE_CASE }} \
                           -var azad_admin_login=${{ secrets.AD_ADMIN }} \
                           -var azad_admin_object_id=${{ secrets.AD_ADMIN_OBJECT_ID }} \

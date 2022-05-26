@@ -11,7 +11,8 @@ on:
           type: string
 
 jobs:
-  build:
+  run_python_tests:
+    name: Run Python Tests
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -1,0 +1,141 @@
+name: Terraform Deployment
+
+on:
+  workflow_call:
+      inputs:
+        BUILD_PATH:
+          required: true
+          type: string
+        ENVIRONMENT:
+          required: true
+          type: string
+        USE_CASE:
+          required: true
+          type: string
+        AKS_DNS_PREFIX:
+          required: true
+          type: string
+        
+      secrets:
+        TF_BACKEND_RG: 
+          required: true
+        TF_BACKEND_SA:
+          required: true
+        TF_BACKEND_CONTAINER_NAME:
+          required: true
+        AZURE_CREDENTIALS:
+          required: true
+        AZ_AD_CLIENT_ID: 
+          required: true
+        AZ_AD_CLIENT_SECRET:
+          required: true
+        AZ_SUBSCRIPTION_ID:
+          required: true
+        AZ_TENANT_ID:
+          required: true
+        SSH_KEY:
+          required: true
+
+jobs:
+  terraform:
+    name: 'Terraform Init/Plan/Apply'
+    environment: ${{ inputs.ENVIRONMENT }}
+
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZ_AD_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZ_AD_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZ_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.BUILD_PATH }}
+
+    steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform format
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform init
+        id: init
+        run: |
+          terraform init -backend-config="resource_group_name=${{ secrets.TF_BACKEND_RG }}" \
+                         -backend-config="storage_account_name=${{ secrets.TF_BACKEND_SA }}" \
+                         -backend-config="container_name=${{ secrets.TF_BACKEND_CONTAINER_NAME }}"
+
+      - name: Terraform validate
+        id: validate
+        run: terraform validate
+
+      - name: Terraform plan
+        id: plan
+        if: github.event_name == 'pull_request'
+        run: |
+          terraform plan -var environment=${{ inputs.ENVIRONMENT }} \
+                          -var use_case=${{ inputs.USE_CASE }} \
+                          -var azad_admin_login=${{ secrets.AD_ADMIN }} \
+                          -var azad_admin_object_id=${{ secrets.AD_ADMIN_OBJECT_ID }} \
+                          -var subscription_id=${{ secrets.AZ_SUBSCRIPTION_ID }} \
+                          -var tenant_id=${{ secrets.AZ_TENANT_ID }} \
+                          -var service_principal_id=${{ secrets.AZ_AD_CLIENT_ID }} \
+                          -var service_principal_secret=${{ secrets.AZ_AD_CLIENT_SECRET }} \
+                          -var aks_ssh_key='${{ secrets.SSH_KEY }}' \
+                          -var aks_dns_prefix=${{ inputs.AKS_DNS_PREFIX }}
+        continue-on-error: true
+
+      - name: Update Pull Request
+        uses: actions/github-script@6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+            })
+            
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          terraform apply -auto-approve -input=false \
+                          -var environment=${{ inputs.ENVIRONMENT }} \
+                          -var use_case=${{ inputs.USE_CASE }} \
+                          -var azad_admin_login=${{ secrets.AD_ADMIN }} \
+                          -var azad_admin_object_id=${{ secrets.AD_ADMIN_OBJECT_ID }} \
+                          -var subscription_id=${{ secrets.AZ_SUBSCRIPTION_ID }} \
+                          -var tenant_id=${{ secrets.AZ_TENANT_ID }} \
+                          -var service_principal_id=${{ secrets.AZ_AD_CLIENT_ID }} \
+                          -var service_principal_secret=${{ secrets.AZ_AD_CLIENT_SECRET }} \
+                          -var aks_ssh_key='${{ secrets.SSH_KEY }}' \
+                          -var aks_dns_prefix=${{ inputs.AKS_DNS_PREFIX }}

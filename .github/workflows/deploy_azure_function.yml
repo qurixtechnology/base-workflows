@@ -1,4 +1,5 @@
-name: 'Deploy Azure Function (Python)'
+name: 'Deploy Python Azure Function'
+
 on:
   workflow_call:
     inputs:
@@ -9,7 +10,6 @@ on:
         required: true
         type: string
       AZURE_FUNCTION_APP_BUILD_PATH:
-        # it must be relative to the workflow dir
         required: true
         type: string
       ENVIRONMENT:
@@ -58,7 +58,7 @@ jobs:
         id: settings
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }} 
-          app-settings-json: '${{ inputs.APP_SETTINGS }}' 
+          app-settings-json: '${{ format("settings.{0}.json", inputs.ENVIRONMENT }}'
           connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}'
           general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'
       

@@ -63,7 +63,9 @@ jobs:
           #connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}' # <- in case of masked strings
           general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'
       
-      - run: echo "The webapp-url is ${{ steps.settings.outputs.webapp-url }}"
+      - name: 'Webapp URL'
+        run: echo "The webapp-url is ${{ steps.settings.outputs.webapp-url }}"
       
-      - run: |
+      - name: 'Az cli logout'
+        run: |
           az logout

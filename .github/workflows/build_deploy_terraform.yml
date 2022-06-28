@@ -38,7 +38,7 @@ on:
 
 jobs:
   terraform:
-    name: 'Terraform Init/Plan/Apply'
+    name: Terraform
     environment: ${{ inputs.ENVIRONMENT }}
 
     env:
@@ -89,7 +89,7 @@ jobs:
                           -var service_principal_id=${{ secrets.AZ_AD_CLIENT_ID }} \
                           -var service_principal_secret=${{ secrets.AZ_AD_CLIENT_SECRET }} \
                           -var aks_ssh_key='${{ secrets.SSH_KEY }}' \
-                          -var aks_dns_prefix=${{ inputs.AKS_DNS_PREFIX }}
+                          -var aks_dns_prefix=${{ inputs.AKS_DNS_PREFIX }} -no-color -input=false
         continue-on-error: true
 
       - name: Update Pull Request
@@ -125,6 +125,7 @@ jobs:
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
+
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |

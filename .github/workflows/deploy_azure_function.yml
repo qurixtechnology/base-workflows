@@ -45,9 +45,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt --target=".python_packages/lib/site-packages"
           popd
+
       - name: 'Deploy Azure Function'
-        uses: Azure/functions-action@v1
+        uses: azure/functions-action@v1
         id: fa
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }}
           package: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}
+      
+      - name: 'Sync App Settings'
+        uses: azure/appservice-settings@v1
+        id: settings
+        with:
+          app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }} 
+          app-settings-json: '${{ inputs.APP_SETTINGS }}' 
+          connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}'
+          general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'
+      
+      - run: echo "The webapp-url is ${{ steps.settings.outputs.webapp-url }}"
+      - run: |
+          az logout

@@ -1,4 +1,4 @@
-name: 'Deploy Python Azure Function'
+name: Deploy Python Azure Function
 
 on:
   workflow_call:
@@ -58,10 +58,11 @@ jobs:
         id: settings
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }} 
-          app-settings-json: '${{ format("settings.{0}.json", inputs.ENVIRONMENT }}'
+          app-settings-json: 'settings.${{ inputs.ENVIRONMENT }}.json'
           connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}'
           general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'
       
       - run: echo "The webapp-url is ${{ steps.settings.outputs.webapp-url }}"
+      
       - run: |
           az logout

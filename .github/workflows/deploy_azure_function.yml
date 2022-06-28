@@ -59,6 +59,7 @@ jobs:
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }} 
           app-settings-json: 'settings.${{ inputs.ENVIRONMENT }}.json'
+          mask-inputs: false
           #connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}' # <- in case of masked strings
           general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'
       

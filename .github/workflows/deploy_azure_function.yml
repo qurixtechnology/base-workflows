@@ -59,7 +59,7 @@ jobs:
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }} 
           app-settings-json: 'settings.${{ inputs.ENVIRONMENT }}.json'
-          connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}'
+          #connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}' # <- in case of masked strings
           general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'
       
       - run: echo "The webapp-url is ${{ steps.settings.outputs.webapp-url }}"

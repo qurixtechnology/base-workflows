@@ -33,6 +33,19 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+    
+      - name: 'Fetching Azure Functions Publishing Profile'
+        id: fncapp
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+           	$profile = ""
+           	$profile = Get-AzWebAppPublishingProfile -ResourceGroupName $env:AZURE_RESOURCE_GROUP_NAME -Name $env:AZURE_FUNCTIONAPP_NAME
+           	$profile = $profile.Replace("`r", "").Replace("`n", "")
+           	Write-Output "::set-output name=pubprofile::$profile"
+           	Remove-Variable profile
+          azPSVersion: "latest"
 
       - name: Download artifact from build job
         uses: actions/download-artifact@v2
@@ -46,6 +59,7 @@ jobs:
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }}
           package: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}/${{ inputs.ARTIFACT_NAME }}.zip
+          publish-profile: ${{ steps.fncapp.outputs.pubprofile }}
           scm-do-build-during-deployment: true
           enable-oryx-build: true
      

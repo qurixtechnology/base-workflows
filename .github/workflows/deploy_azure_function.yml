@@ -15,6 +15,9 @@ on:
       ENVIRONMENT:
         required: true
         type: string
+      CURRENT_BRANCH:
+          required: true
+          type: string
     
     secrets:
       AZURE_CREDENTIALS:
@@ -34,10 +37,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Checkout ${{ github.ref_name }} 
+      - name: Checkout ${{ inputs.CURRENT_BRANCH }} 
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref_name }}
+          ref: ${{ inputs.CURRENT_BRANCH }}
 
       - name: Setup Python ${{ inputs.PYTHON_VERSION }} Environment
         uses: actions/setup-python@v1
@@ -58,7 +61,7 @@ jobs:
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }}
           package: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}
-      
+     
       - name: 'Sync App Settings'
         uses: azure/appservice-settings@v1
         id: settings

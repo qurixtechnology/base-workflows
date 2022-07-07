@@ -15,10 +15,6 @@ on:
       ENVIRONMENT:
         required: true
         type: string
-      CURRENT_BRANCH:
-          required: true
-          type: string
-          default: ${{ github.ref }}
     
     secrets:
       AZURE_CREDENTIALS:
@@ -30,7 +26,7 @@ jobs:
   deploy:
     name: Deploy Azure Function
     environment: ${{ inputs.ENVIRONMENT  }}
-
+    
     runs-on: ubuntu-latest
 
     steps:
@@ -38,10 +34,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Checkout ${{ inputs.CURRENT_BRANCH }} 
+      - name: Checkout ${{ github.ref_name }} 
         uses: actions/checkout@v3
         with:
-          ref: ${{ inputs.CURRENT_BRANCH }}
+          ref: ${{ github.ref_name }}
 
       - name: Setup Python ${{ inputs.PYTHON_VERSION }} Environment
         uses: actions/setup-python@v1

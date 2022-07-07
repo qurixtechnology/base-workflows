@@ -37,7 +37,7 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v2
         with:
-          name: ${{ inputs.ARTIFACT_NAME }}.zip
+          name: ${{ inputs.ARTIFACT_NAME }}
           path: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}
 
       - name: 'Deploy Azure Function'
@@ -45,7 +45,7 @@ jobs:
         id: fa
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }}
-          package: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}
+          package: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}/${{ inputs.ARTIFACT_NAME }}.zip
           scm-do-build-during-deployment: true
           enable-oryx-build: true
      

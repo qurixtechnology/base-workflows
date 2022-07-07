@@ -6,18 +6,15 @@ on:
       AZURE_FUNCTION_APP_NAME: 
         required: true
         type: string
-      PYTHON_VERSION:
-        required: true
-        type: string
       AZURE_FUNCTION_APP_BUILD_PATH:
         required: true
         type: string
       ENVIRONMENT:
         required: true
         type: string
-      CURRENT_BRANCH:
-          required: true
-          type: string
+      ARTIFACT_NAME:
+        required: true
+        type: string
     
     secrets:
       AZURE_CREDENTIALS:
@@ -37,23 +34,11 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Checkout ${{ inputs.CURRENT_BRANCH }} 
-        uses: actions/checkout@v3
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
         with:
-          ref: ${{ inputs.CURRENT_BRANCH }}
-
-      - name: Setup Python ${{ inputs.PYTHON_VERSION }} Environment
-        uses: actions/setup-python@v1
-        with:
-          python-version: ${{ inputs.PYTHON_VERSION }}
-
-      - name: 'Install dependencies'
-        shell: bash
-        run: |
-          pushd './${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}'
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
-          popd
+          name: ${{ inputs.ARTIFACT_NAME }}
+          path: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}
 
       - name: 'Deploy Azure Function'
         uses: azure/functions-action@v1
@@ -61,6 +46,8 @@ jobs:
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }}
           package: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}
+          scm-do-build-during-deployment: true
+          enable-oryx-build: true
      
       - name: 'Sync App Settings'
         uses: azure/appservice-settings@v1

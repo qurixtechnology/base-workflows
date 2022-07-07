@@ -9,6 +9,10 @@ on:
         BUILD_PATH:
           required: true
           type: string
+        CURRENT_BRANCH:
+          required: true
+          type: string
+          default: ${{ github.ref }}
 
 jobs:
   run_python_tests:
@@ -19,10 +23,10 @@ jobs:
         # Working directory for all 'run' steps
         working-directory: ${{ inputs.BUILD_PATH }} 
     steps:
-      - name: Checkout ${{ github.ref }} 
+      - name: Checkout ${{ inputs.CURRENT_BRANCH }} 
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ inputs.CURRENT_BRANCH }}
 
       - name: Set up Python 
         uses: actions/setup-python@v3

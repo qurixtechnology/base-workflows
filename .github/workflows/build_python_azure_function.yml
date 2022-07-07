@@ -16,11 +16,15 @@ on:
         required: true
         type: string
         default: ${{ github.ref }}
+env:
+  OUTPUT_DIR: output
+  ZIP_FILE_NAME: ${{ inputs.ARTIFACT_NAME }}.zip
 
 jobs:
   build:
     name: Build Azure Function
     runs-on: ubuntu-latest
+        
     defaults:
       run:
         # Working directory for all 'run' steps
@@ -38,7 +42,7 @@ jobs:
 
       - name: Create and start virtual environment
         run: |
-          python -m venv venv
+          python -m venv .venv
           source venv/bin/activate
       
       - name: Install dependencies
@@ -56,10 +60,14 @@ jobs:
         run: |
           python -m pytest tests/ --cov --cov-report xml:coverage.xml --cov-config=.coveragerc
 
+      - name: Create package folder
+        run: |
+          mkdir ${{ env.OUTPUT_DIR }}
+          zip -r ${{ env.OUTPUT_DIR }}/${{ env.ZIP_FILE_NAME }} .
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: ${{ inputs.ARTIFACT_NAME }}
-          path: |
-            ${{ inputs.BUILD_PATH }}
-            !venv/
+          path: ${{ inputs.BUILD_PATH }}/${{ env.OUTPUT_DIR }}/${{ env.ZIP_FILE_NAME }}
+          if-no-files-found: error

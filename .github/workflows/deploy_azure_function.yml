@@ -13,8 +13,12 @@ on:
         required: true
         type: string
       ENVIRONMENT:
+        required: true
+        type: string
+      CURRENT_BRANCH:
           required: true
           type: string
+          default: ${{ github.ref }}
     
     secrets:
        AZURE_CREDENTIALS:
@@ -32,10 +36,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Checkout ${{ github.ref }} 
+      - name: Checkout ${{ inputs.CURRENT_BRANCH }} 
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ inputs.CURRENT_BRANCH }}
 
       - name: Setup Python ${{ inputs.PYTHON_VERSION }} Environment
         uses: actions/setup-python@v1

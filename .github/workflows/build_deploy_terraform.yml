@@ -15,6 +15,10 @@ on:
         AKS_DNS_PREFIX:
           required: true
           type: string
+        CURRENT_BRANCH:
+          required: true
+          type: string
+          default: ${{ github.ref }}
         
       secrets:
         TF_BACKEND_RG: 
@@ -58,10 +62,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Checkout ${{ github.ref }} 
+      - name: Checkout ${{ inputs.CURRENT_BRANCH }} 
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ inputs.CURRENT_BRANCH }}
 
       - uses: hashicorp/setup-terraform@v2
 

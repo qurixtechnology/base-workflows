@@ -21,8 +21,10 @@ on:
           default: ${{ github.ref }}
     
     secrets:
-       AZURE_CREDENTIALS:
+      AZURE_CREDENTIALS:
           required: true
+      AZ_INGEST_FUNCTION_SETTINGS:
+        required: true
       
 jobs:
   deploy:
@@ -66,11 +68,14 @@ jobs:
         id: settings
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }} 
-          app-settings-json: 'settings.${{ inputs.ENVIRONMENT }}.json'
-          connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}'
+          app-settings-json: '${{ secrets.AZ_INGEST_FUNCTION_SETTINGS }}'
+          mask-inputs: true
+          #connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}' # <- in case of masked strings
           general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'
       
-      - run: echo "The webapp-url is ${{ steps.settings.outputs.webapp-url }}"
+      - name: 'WebApp URL'
+        run: echo "The webapp-url is ${{ steps.settings.outputs.webapp-url }}"
       
-      - run: |
+      - name: 'Az cli logout'
+        run: |
           az logout

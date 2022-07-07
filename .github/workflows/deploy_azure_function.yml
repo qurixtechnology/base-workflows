@@ -33,7 +33,11 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - uses: actions/checkout@v3
+
+      - name: Checkout ${{ github.ref }} 
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
 
       - name: Setup Python ${{ inputs.PYTHON_VERSION }} Environment
         uses: actions/setup-python@v1

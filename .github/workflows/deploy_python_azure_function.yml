@@ -3,6 +3,9 @@ name: Deploy Python Azure Function
 on:
   workflow_call:
     inputs:
+      AZURE_FUNCTION_RESOURCE_GROUP:
+        required: true
+        type: string
       AZURE_FUNCTION_APP_NAME: 
         required: true
         type: string
@@ -26,13 +29,26 @@ jobs:
   deploy:
     name: Deploy Azure Function
     environment: ${{ inputs.ENVIRONMENT  }}
-    
+
     runs-on: ubuntu-latest
 
     steps:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+    
+      - name: 'Fetching Azure Functions Publishing Profile'
+        uses: azure/powershell@v1
+        id: fncapp
+        with:
+          inlineScript: |
+            $profile = ""
+            $profile = Get-AzWebAppPublishingProfile -ResourceGroupName ${{ inputs.AZURE_FUNCTION_RESOURCE_GROUP }} -Name ${{ inputs.AZURE_FUNCTION_APP_NAME }}
+            $profile = $profile.Replace("`r", "").Replace("`n", "")
+            Write-Output "::set-output name=pubprofile::$profile"
+            Remove-Variable profile
+          azPSVersion: "latest"
 
       - name: Download artifact from build job
         uses: actions/download-artifact@v2
@@ -45,7 +61,8 @@ jobs:
         id: fa
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }}
-          package: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}
+          package: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}/${{ inputs.ARTIFACT_NAME }}.zip
+          publish-profile: ${{ steps.fncapp.outputs.pubprofile }}
           scm-do-build-during-deployment: true
           enable-oryx-build: true
      

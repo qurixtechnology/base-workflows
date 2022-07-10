@@ -12,6 +12,6 @@ All can be found unter `.github/workflow`
 - `build_python_azure_function.yml`
   - *name*: Build Python Azure Function
   - *description*: Builds an Azure Python Function, executes unit tests and uploads .zip artifact
-- `build_python_azure_function.yml`
+- `deploy_python_azure_function.yml`
   - *name*: Deploy Python Azure Function
   - *description*: Deploys built Python Function to Azure

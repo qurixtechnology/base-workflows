@@ -2,43 +2,43 @@ name: Terraform Deployment
 
 on:
   workflow_call:
-      inputs:
-        BUILD_PATH:
-          required: true
-          type: string
-        ENVIRONMENT:
-          required: true
-          type: string
-        USE_CASE:
-          required: true
-          type: string
-        AKS_DNS_PREFIX:
-          required: true
-          type: string
-        CURRENT_BRANCH:
-          required: true
-          type: string
-          default: ${{ github.ref }}
-        
-      secrets:
-        TF_BACKEND_RG: 
-          required: true
-        TF_BACKEND_SA:
-          required: true
-        TF_BACKEND_CONTAINER_NAME:
-          required: true
-        AZURE_CREDENTIALS:
-          required: true
-        AZ_AD_CLIENT_ID: 
-          required: true
-        AZ_AD_CLIENT_SECRET:
-          required: true
-        AZ_SUBSCRIPTION_ID:
-          required: true
-        AZ_TENANT_ID:
-          required: true
-        SSH_KEY:
-          required: true
+    inputs:
+      BUILD_PATH:
+        required: true
+        type: string
+      ENVIRONMENT:
+        required: true
+        type: string
+      USE_CASE:
+        required: true
+        type: string
+      AKS_DNS_PREFIX:
+        required: true
+        type: string
+      CURRENT_BRANCH:
+        required: true
+        type: string
+        default: ${{ github.ref }}
+
+    secrets:
+      TF_BACKEND_RG:
+        required: true
+      TF_BACKEND_SA:
+        required: true
+      TF_BACKEND_CONTAINER_NAME:
+        required: true
+      AZURE_CREDENTIALS:
+        required: true
+      AZ_AD_CLIENT_ID:
+        required: true
+      AZ_AD_CLIENT_SECRET:
+        required: true
+      AZ_SUBSCRIPTION_ID:
+        required: true
+      AZ_TENANT_ID:
+        required: true
+      SSH_KEY:
+        required: true
 
 jobs:
   terraform:
@@ -62,7 +62,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Checkout ${{ inputs.CURRENT_BRANCH }} 
+      - name: Checkout ${{ inputs.CURRENT_BRANCH }}
         uses: actions/checkout@v3
         with:
           ref: ${{ inputs.CURRENT_BRANCH }}
@@ -130,7 +130,7 @@ jobs:
             repo: context.repo.repo,
             body: output
             })
-            
+
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1

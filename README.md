@@ -15,3 +15,6 @@ All can be found unter `.github/workflow`
 - `deploy_python_azure_function.yml`
   - *name*: Deploy Python Azure Function
   - *description*: Deploys built Python Function to Azure
+- `build_python_tests.yml`:
+  - *name*: Build Python Tests
+  - *description*: Run Python unit tests and linter.

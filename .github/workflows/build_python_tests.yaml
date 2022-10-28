@@ -1,0 +1,66 @@
+name: Run Python Tests
+
+on:
+  workflow_call:
+    inputs:
+      PYTHON_VERSION:
+        required: true
+        type: string
+      ROOT_PATH:
+        required: true
+        type: string
+        default: .
+      CURRENT_BRANCH:
+        required: true
+        type: string
+        default: ${{ github.ref }}
+      TEST_DIR:
+        required: true
+        type: string
+        default: tests
+      VENV_NAME:
+        required: true
+        type: string
+        default: .venv
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+        
+    defaults:
+      run:
+        # Working directory for all 'run' steps
+        working-directory: ${{ ROOT_PATH }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ PYTHON_VERSION }}
+
+      - name: Create and start virtual environment
+        run: |
+          python3 -m venv ${{ VENV_NAME }}
+          source ${{ VENV_NAME }}/bin/activate
+      
+      - name: Install dependencies
+        run: |
+          python3 -m pip3 install --upgrade pip setuptools wheel
+          pip3 install flake8 pytest pytest-cov
+          if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
+          if [ -f requirements.dev.txt ]; then pip3 install -r requirements.dev.txt; fi
+
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Run unit tests
+        run: |
+          python3 -m pytest ${{ TEST_DIR }} --cov --cov-report xml:coverage.xml --cov-config=.coveragerc

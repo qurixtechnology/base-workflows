@@ -7,6 +7,7 @@ on:
         required: true
         type: string
       ROOT_PATH:
+        description: 'Root directory of the Python'
         required: true
         type: string
         default: .
@@ -15,13 +16,20 @@ on:
         type: string
         default: ${{ github.ref }}
       TEST_DIR:
+        description: 'Directory with tests (test_*.py) to run'
         required: true
         type: string
         default: tests
       VENV_NAME:
+        description: 'Name of the virtual environment'
         required: true
         type: string
         default: .venv
+      IGNORE_PEP8:
+        description: 'Specific PEP8 guidelines that can be ignored, e.g.: E501,W191'
+        required: true
+        type: string
+        default: ""
 
 jobs:
   test:
@@ -57,7 +65,8 @@ jobs:
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
-          flake8 . --exclude .venv,worker_venv,.python_packages
+          flake8 . --exclude ${{ inputs.VENV_NAME }},worker_venv,.python_packages --ignore=${{ inputs.IGNORE_PEP8 }}
+
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 

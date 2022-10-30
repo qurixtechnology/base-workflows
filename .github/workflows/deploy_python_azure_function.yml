@@ -16,6 +16,7 @@ on:
         required: true
         type: string
       ARTIFACT_NAME:
+        description: "Environment stage, e.g. DEV, TEST, PROD"
         required: true
         type: string
     

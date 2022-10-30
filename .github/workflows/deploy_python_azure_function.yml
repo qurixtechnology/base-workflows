@@ -16,7 +16,7 @@ on:
         required: true
         type: string
       ARTIFACT_NAME:
-        description: "Environment stage, e.g. DEV, TEST, PROD"
+        description: "Name of the artifact to deploy, e.g. ingest_function"
         required: true
         type: string
     

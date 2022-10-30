@@ -16,6 +16,7 @@ on:
         required: true
         type: string
       ARTIFACT_NAME:
+        description: "Name of the artifact to deploy, e.g. ingest_function"
         required: true
         type: string
     
@@ -43,6 +44,7 @@ jobs:
         id: fncapp
         with:
           inlineScript: |
+            Write-Host "Initializing Deployment"
             $profile = ""
             $profile = Get-AzWebAppPublishingProfile -ResourceGroupName ${{ inputs.AZURE_FUNCTION_RESOURCE_GROUP }} -Name ${{ inputs.AZURE_FUNCTION_APP_NAME }}
             $profile = $profile.Replace("`r", "").Replace("`n", "")

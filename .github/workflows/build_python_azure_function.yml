@@ -49,7 +49,7 @@ jobs:
     steps:      
       - name: Check files
         run: |
-          ls -l
+          ls -l .
 
       - name: Create package folder
         run: |

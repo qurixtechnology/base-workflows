@@ -11,6 +11,11 @@ All notable changes to this project will be documented in this file:
  
 ### Fixed -> list of fixes
 ``` 
+## [v0.1.1] - 2022-12-09
+
+- Update build python azure function
+- Update deploy python azure function
+- Generic func settings
 
 ## [v0.1.0] - 2022-10-30
  

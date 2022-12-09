@@ -49,6 +49,7 @@ jobs:
     steps:      
       - name: Check files
         run: |
+          pwd
           ls -l .
 
       - name: Create package folder

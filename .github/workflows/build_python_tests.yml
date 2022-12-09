@@ -73,3 +73,9 @@ jobs:
       - name: Run unit tests
         run: |
           python3 -m pytest ${{ inputs.TEST_DIR }} --cov --cov-report xml:coverage.xml --cov-config=.coveragerc
+
+      - name: Check files
+        run: |
+          pwd
+          ls -l .
+         

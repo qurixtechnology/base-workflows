@@ -41,11 +41,16 @@ jobs:
     needs: build_tests 
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
+    #defaults:
+    #  run:
         # Working directory for all 'run' steps
-        working-directory: ${{ inputs.BUILD_PATH }}
+    #    working-directory: ${{ inputs.BUILD_PATH }}
+    
     steps:      
+      - name: Check files
+        run: |
+          ls -l
+          
       - name: Create package folder
         run: |
           mkdir ${{ env.OUTPUT_DIR }}

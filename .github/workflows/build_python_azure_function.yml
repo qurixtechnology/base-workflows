@@ -31,7 +31,7 @@ jobs:
         working-directory: ${{ inputs.BUILD_PATH }}
     steps:
       - name: Run tests
-        uses: ./.github/workflows/build_python_tests.yml
+        uses: qurixtechnology/base-workflows/.github/workflows/build_python_tests.yml@feature/reuse-python-tests
         with:
           python_version: ${{ inputs.PYTHON_VERSION }}
           root_path: .

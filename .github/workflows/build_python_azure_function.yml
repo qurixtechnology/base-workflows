@@ -54,8 +54,8 @@ jobs:
 
       - name: Create package folder
         run: |
-          mkdir ${{ env.OUTPUT_DIR }}
-          zip -r ${{ env.OUTPUT_DIR }}/${{ env.ZIP_FILE_NAME }} .
+          mkdir ${{ inputs.BUILD_PATH }}/${{ env.OUTPUT_DIR }}
+          zip -r ${{ inputs.BUILD_PATH }}/${{ env.OUTPUT_DIR }}/${{ env.ZIP_FILE_NAME }} .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2

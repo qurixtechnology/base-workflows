@@ -21,25 +21,26 @@ env:
   ZIP_FILE_NAME: ${{ inputs.ARTIFACT_NAME }}.zip
 
 jobs:
-  build:
-    name: Build Azure Function
+  build_tests:
+    name: Run tests and install requirements
+    uses: qurixtechnology/base-workflows/.github/workflows/build_python_tests.yml@feature/reuse-python-tests
+    with:
+      python_version: ${{ inputs.PYTHON_VERSION }}
+      root_path:  ${{ inputs.BUILD_PATH }}
+      current_branch: ${{ github.current_branch }}
+      test_dir: tests
+      venv_name: .venv
+      ignore_pep8: ""
+
+  upload:
+    name: Upload Azure Function artifact
     runs-on: ubuntu-latest
 
     defaults:
       run:
         # Working directory for all 'run' steps
         working-directory: ${{ inputs.BUILD_PATH }}
-    steps:
-      - name: Run tests
-        uses: qurixtechnology/base-workflows/.github/workflows/build_python_tests.yml@feature/reuse-python-tests
-        with:
-          python_version: ${{ inputs.PYTHON_VERSION }}
-          root_path: .
-          current_branch: ${{ github.current_branch }}
-          test_dir: tests
-          venv_name: .venv
-          ignore_pep8: ""
-      
+    steps:      
       - name: Create package folder
         run: |
           mkdir ${{ env.OUTPUT_DIR }}

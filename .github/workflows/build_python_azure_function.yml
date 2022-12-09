@@ -12,7 +12,7 @@ on:
       ARTIFACT_NAME:
         required: true
         type: string
-      IGNORE_PEP_8:
+      IGNORE_PEP8:
         required: true
         type: string
       CURRENT_BRANCH:

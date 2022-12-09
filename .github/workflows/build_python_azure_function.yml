@@ -12,10 +12,14 @@ on:
       ARTIFACT_NAME:
         required: true
         type: string
+      IGNORE_PEP_8:
+        required: true
+        type: string
       CURRENT_BRANCH:
         required: true
         type: string
         default: ${{ github.ref }}
+      
 env:
   OUTPUT_DIR: output
   ZIP_FILE_NAME: ${{ inputs.ARTIFACT_NAME }}.zip
@@ -27,10 +31,10 @@ jobs:
     with:
       python_version: ${{ inputs.PYTHON_VERSION }}
       root_path:  ${{ inputs.BUILD_PATH }}
-      current_branch: ${{ github.current_branch }}
+      current_branch: ${{ github.CURRENT_BRANCH }}
       test_dir: tests
       venv_name: .venv
-      ignore_pep8: ""
+      ignore_pep8: ${{ inputs.IGNORE_PEP_8 }}
 
   upload:
     name: Upload Azure Function artifact

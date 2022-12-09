@@ -19,43 +19,67 @@ on:
         required: true
         type: string
         default: ${{ github.ref }}
+      TEST_DIR:
+        description: 'Directory with tests (test_*.py) to run'
+        required: true
+        type: string
+        default: tests
+      VENV_NAME:
+        description: 'Name of the virtual environment'
+        required: true
+        type: string
+        default: .venv
       
 env:
   OUTPUT_DIR: output
   ZIP_FILE_NAME: ${{ inputs.ARTIFACT_NAME }}.zip
 
 jobs:
-  build_tests:
-    name: Run tests and install requirements
-    uses: qurixtechnology/base-workflows/.github/workflows/build_python_tests.yml@feature/reuse-python-tests
-    with:
-      python_version: ${{ inputs.PYTHON_VERSION }}
-      root_path:  ${{ inputs.BUILD_PATH }}
-      current_branch: ${{ github.CURRENT_BRANCH }}
-      test_dir: tests
-      venv_name: .venv
-      ignore_pep8: ${{ inputs.IGNORE_PEP_8 }}
-
-  upload:
-    name: Upload Azure Function artifact
-    needs: build_tests 
+  build:
+    name: Build Azure Function
     runs-on: ubuntu-latest
-
-    #defaults:
-    #  run:
-        # Working directory for all 'run' steps
-        #working-directory: ${{ inputs.BUILD_PATH }}
+    defaults:
+      run:
+        #Working directory for all 'run' steps
+        working-directory: ${{ inputs.BUILD_PATH }}
     
     steps:      
-      - name: Check files
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ inputs.PYTHON_VERSION }}
+
+      - name: Create and start virtual environment
         run: |
-          pwd
-          ls -l .
+          python3 -m venv ${{ inputs.VENV_NAME }}
+          source ${{ inputs.VENV_NAME }}/bin/activate
+      
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          pip install flake8 pytest pytest-cov
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements.dev.txt ]; then pip install -r requirements.dev.txt; fi
+
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --exclude ${{ inputs.VENV_NAME }},worker_venv,.python_packages --ignore=${{ inputs.IGNORE_PEP8 }}
+
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Run unit tests
+        run: |
+          python3 -m pytest ${{ inputs.TEST_DIR }} --cov --cov-report xml:coverage.xml --cov-config=.coveragerc
 
       - name: Create package folder
         run: |
-          mkdir ${{ inputs.BUILD_PATH }}/${{ env.OUTPUT_DIR }}
-          zip -r ${{ inputs.BUILD_PATH }}/${{ env.OUTPUT_DIR }}/${{ env.ZIP_FILE_NAME }} .
+          mkdir ${{ env.OUTPUT_DIR }}
+          zip -r ${{ env.OUTPUT_DIR }}/${{ env.ZIP_FILE_NAME }} .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2

@@ -18,9 +18,7 @@ jobs:
   lint:
     name: Validate Bicep file and builds Bicep deployment
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ inputs.BUILD_PATH }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

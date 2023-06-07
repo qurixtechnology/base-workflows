@@ -1,0 +1,40 @@
+name: Deploy infrastructure with Bicep
+
+on:
+  workflow_call:
+    inputs:
+      AZURE_RESOURCE_GROUP:
+        required: true
+        type: string
+      ENVIRONMENT:
+        required: true
+        type: string
+
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy Bicep Artifact
+    environment: ${{ inputs.ENVIRONMENT  }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ inputs.ARTIFACT_NAME }}
+          path: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}
+
+      #TODO: complete this deployment file
+
+      - name: "Az cli logout"
+        run: |
+          az logout

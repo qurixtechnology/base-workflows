@@ -6,7 +6,7 @@ on:
       AZURE_FUNCTION_RESOURCE_GROUP:
         required: true
         type: string
-      AZURE_FUNCTION_APP_NAME: 
+      AZURE_FUNCTION_APP_NAME:
         required: true
         type: string
       AZURE_FUNCTION_APP_BUILD_PATH:
@@ -19,13 +19,13 @@ on:
         description: "Name of the artifact to deploy, e.g. ingest_function"
         required: true
         type: string
-    
+
     secrets:
       AZURE_CREDENTIALS:
-          required: true
+        required: true
       FUNCTION_SETTINGS:
         required: true
-      
+
 jobs:
   deploy:
     name: Deploy Azure Function
@@ -38,8 +38,8 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
-    
-      - name: 'Fetching Azure Functions Publishing Profile'
+
+      - name: "Fetching Azure Functions Publishing Profile"
         uses: azure/powershell@v1
         id: fncapp
         with:
@@ -58,7 +58,7 @@ jobs:
           name: ${{ inputs.ARTIFACT_NAME }}
           path: ${{ inputs.AZURE_FUNCTION_APP_BUILD_PATH }}
 
-      - name: 'Deploy Azure Function'
+      - name: "Deploy Azure Function"
         uses: azure/functions-action@v1
         id: fa
         with:
@@ -67,20 +67,20 @@ jobs:
           publish-profile: ${{ steps.fncapp.outputs.pubprofile }}
           scm-do-build-during-deployment: true
           enable-oryx-build: true
-     
-      - name: 'Sync App Settings'
+
+      - name: "Sync App Settings"
         uses: azure/appservice-settings@v1
         id: settings
         with:
-          app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }} 
-          app-settings-json: '${{ secrets.FUNCTION_SETTINGS }}'
+          app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }}
+          app-settings-json: "${{ secrets.FUNCTION_SETTINGS }}"
           mask-inputs: true
           #connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}' # <- in case of masked strings
           general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'
-      
-      - name: 'WebApp URL'
+
+      - name: "WebApp URL"
         run: echo "The webapp-url is ${{ steps.settings.outputs.webapp-url }}"
-      
-      - name: 'Az cli logout'
+
+      - name: "Az cli logout"
         run: |
           az logout

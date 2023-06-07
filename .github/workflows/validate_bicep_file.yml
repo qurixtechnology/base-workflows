@@ -1,0 +1,45 @@
+name: Validate Bicep Infrastructure File
+
+on:
+  workflow_call:
+    inputs:
+      BICEP_FILE_PATH:
+        required: true
+        type: string
+      AZURE_RG_NAME:
+        required: true
+        type: string
+    
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+jobs:
+  lint:
+    name: Validate Bicep file and builds Bicep deployment
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.BUILD_PATH }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Validate Bicep file
+        run: |
+          az bicep build --file ${{ inputs.BICEP_FILE_PATH }}
+
+  validate:
+    name: Runs preflight validation on Bicep
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
+    - uses: azure/arm-deploy@v1
+      name: Run Bicep preflight validation
+      with:
+        resourceGroupName: ${{ inputs.AZURE_RG_NAME }}
+        template: ${{ inputs.BICEP_FILE_PATH }}
+        deploymentMode: Validate

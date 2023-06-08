@@ -25,14 +25,17 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
 
-      - name: Create resource group
-        uses: Azure/CLI@v1
+      - name: Check and create
+        uses: AzureCLI@2
         with:
+          failOnStandardError: true
           inlineScript: |
             #!/bin/bash
+            echo "Checking resource group ${{ inputs.AZURE_RG_NAME }}"
             if $(az group exists --name ${{ inputs.AZURE_RG_NAME }}) ; then
               echo "Azure resource group already exists, skipping creation..."
             else
-              az group create --name ${{ inputs.AZURE_RG_NAME }} --location ${{ inputs.AZURE_RG_LOCATION }}
+              az group create --name ${{ inputs.AZURE_RG_NAME }} --location ${{ inputs.AZURE_RG_LOCATION }} --tags ""
               echo "Azure resource group created"
-            fi     
+            fi
+            exit 0

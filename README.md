@@ -16,7 +16,7 @@ Base reusable workflows for [Github Actions](https://docs.github.com/en/actions/
 
 - `build_python_azure_function.yml`: builds an Azure Python Function, executes unit tests and uploads the `.zip` artifact.
 
-### Deploy Python Azure Function
+## Python: Tests
 
 - `deploy_python_azure_function.yml`: deploys a previously built Python Function to Azure.
 

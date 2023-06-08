@@ -1,0 +1,38 @@
+name: Validate Bicep Infrastructure File
+
+on:
+  workflow_call:
+    inputs:
+      AZURE_RG_NAME:
+        required: true
+        type: string
+      AZURE_RG_LOCATION:
+        required: true
+        type: string
+
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+jobs:
+  create:
+    name: Create a resource group
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+
+      - name: Create resource group
+        uses: Azure/CLI@v1
+        with:
+          inlineScript: |
+            #!/bin/bash
+            if $(az group exists --name ${{ inputs.AZURE_RG_NAME }}) ; then
+              echo "Azure resource group already exists, skipping creation..."
+            else
+              az group create --name ${{ inputs.AZURE_RG_NAME }} --location ${{ inputs.AZURE_RG_LOCATION }}
+              echo "Azure resource group created"
+            fi     

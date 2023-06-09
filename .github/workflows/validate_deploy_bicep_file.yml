@@ -1,4 +1,4 @@
-name: Validate Bicep Infrastructure File
+name: Validate and deploy Bicep Infrastructure File
 
 on:
   workflow_call:
@@ -25,16 +25,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Validate Bicep file
         run: |
           az bicep build --file ${{ inputs.BICEP_FILE_PATH }}
-      - uses: azure/arm-deploy@v1
+
+  deploy:
+    name: Deploy Bicep
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: azure/login@v1
         with:
-          resourceGroupName: ${{ inputs.AZURE_RG_NAME }}
-          template: ${{ inputs.BICEP_FILE_PATH }}
-          parameters: ${{ inputs.BICEP_PARAMETER_FILE_PATH }}
-          deploymentMode: Validate
-          deploymentName: github-preflight-validation
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - run: |
+          az deployment group create \
+          --resource-group ${{ inputs.AZURE_RG_NAME }} \
+          --template-file ${{ inputs.BICEP_FILE_PATH }} \
+          --parameters ${{ inputs.BICEP_PARAMETER_FILE_PATH }} \
+          --mode incremental
+  

@@ -32,10 +32,9 @@ jobs:
         run: |
           az bicep build --file ${{ inputs.BICEP_FILE_PATH }}
       - uses: azure/arm-deploy@v1
-        name: Run Bicep preflight validation
         with:
           resourceGroupName: ${{ inputs.AZURE_RG_NAME }}
           template: ${{ inputs.BICEP_FILE_PATH }}
           parameters: ${{ inputs.BICEP_PARAMETER_FILE_PATH }}
-          scope: resourcegroup
           deploymentMode: Validate
+          deploymentName: github-preflight-validation

@@ -9,6 +9,9 @@ on:
       AZURE_RG_LOCATION:
         required: true
         type: string
+      OWNER:
+        required: true
+        type: string
       REQUIRED_UNTIL:
         required: true
         type: string

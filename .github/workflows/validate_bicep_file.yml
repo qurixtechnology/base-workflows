@@ -18,26 +18,20 @@ on:
         required: true
 
 jobs:
-  lint:
+  validate:
     name: Validate file
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Validate Bicep file
-        run: |
-          az bicep build --file ${{ inputs.BICEP_FILE_PATH }}
-
-  validate:
-    name: Runs preflight validation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           enable-AzPSSession: true
+      - name: Validate Bicep file
+        run: |
+          az bicep build --file ${{ inputs.BICEP_FILE_PATH }}
       - uses: azure/arm-deploy@v1
         name: Run Bicep preflight validation
         with:

@@ -30,6 +30,7 @@ jobs:
           az bicep build --file ${{ inputs.BICEP_FILE_PATH }}
 
   deploy:
+    needs: validate
     name: Deploy Bicep
     runs-on: ubuntu-latest
 

@@ -12,6 +12,9 @@ on:
       OWNER:
         required: true
         type: string
+      USE_CASE:
+        required: true
+        type: string
       REQUIRED_UNTIL:
         required: true
         type: string
@@ -43,7 +46,7 @@ jobs:
             else
               az group create --name ${{ inputs.AZURE_RG_NAME }} \
                 --location ${{ inputs.AZURE_RG_LOCATION }} \
-                --tags owner=${{ inputs.OWNER }} required_until=${{ inputs.REQUIRED_UNTIL }}
+                --tags owner=${{ inputs.OWNER }} required_until=${{ inputs.REQUIRED_UNTIL }} use_case=${{ inputs.USE_CASE }}
               echo "Azure resource group created"
             fi
             exit 0

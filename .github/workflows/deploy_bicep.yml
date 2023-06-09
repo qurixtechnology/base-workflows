@@ -18,22 +18,9 @@ on:
         required: true
 
 jobs:
-  validate:
-    name: Validate file
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Validate Bicep file
-        run: |
-          az bicep build --file ${{ inputs.BICEP_FILE_PATH }}
-
   deploy:
-    needs: validate
     name: Deploy Bicep
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -46,4 +33,3 @@ jobs:
           --template-file ${{ inputs.BICEP_FILE_PATH }} \
           --parameters ${{ inputs.BICEP_PARAMETER_FILE_PATH }} \
           --mode incremental
-  

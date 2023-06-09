@@ -47,3 +47,5 @@ jobs:
               echo "Azure resource group created"
             fi
             exit 0
+        
+        # Add budget restrictions

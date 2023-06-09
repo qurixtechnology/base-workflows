@@ -77,7 +77,7 @@ jobs:
           zip -r ${{ env.OUTPUT_DIR }}/${{ env.ZIP_FILE_NAME }} .
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.ARTIFACT_NAME }}
           path: ${{ inputs.BUILD_PATH }}/${{ env.OUTPUT_DIR }}/${{ env.ZIP_FILE_NAME }}

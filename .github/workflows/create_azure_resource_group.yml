@@ -50,5 +50,8 @@ jobs:
               echo "Azure resource group created"
             fi
             exit 0
-        
-        # Add budget restrictions
+      - name: Summary
+        run: |
+            echo "### 🏗️ Resource group ${{ inputs.AZURE_RG_NAME }}" >> $GITHUB_STEP_SUMMARY
+      # Add budget restrictions
+            

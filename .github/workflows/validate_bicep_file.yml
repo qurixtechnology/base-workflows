@@ -40,5 +40,5 @@ jobs:
         with:
           resourceGroupName: ${{ inputs.AZURE_RG_NAME }}
           template: ${{ inputs.BICEP_FILE_PATH }}
-          scope: ${{ inputs.AZURE_RG_NAME }}
+          scope: resourcegroup
           deploymentMode: Validate

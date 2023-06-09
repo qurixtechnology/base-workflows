@@ -26,7 +26,7 @@ on:
 
 jobs:
   create:
-    name: Create a resource group
+    name: Create resource group
     runs-on: ubuntu-latest
 
     steps:

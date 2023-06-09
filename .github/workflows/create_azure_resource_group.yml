@@ -39,3 +39,5 @@ jobs:
               echo "Azure resource group created"
             fi
             exit 0
+      - name: Sample
+        run: echo "Something"

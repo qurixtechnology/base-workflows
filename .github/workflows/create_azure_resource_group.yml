@@ -9,6 +9,10 @@ on:
       AZURE_RG_LOCATION:
         required: true
         type: string
+      REQUIRED_UNTIL:
+        required: true
+        type: string
+        default: "9999-12-31"
 
     secrets:
       AZURE_CREDENTIALS:
@@ -34,7 +38,9 @@ jobs:
             if $(az group exists --name ${{ inputs.AZURE_RG_NAME }}) ; then
               echo "Azure resource group already exists, skipping creation..."
             else
-              az group create --name ${{ inputs.AZURE_RG_NAME }} --location ${{ inputs.AZURE_RG_LOCATION }} --tags ""
+              az group create --name ${{ inputs.AZURE_RG_NAME }} \
+                --location ${{ inputs.AZURE_RG_LOCATION }} \
+                --tags owner=${{ inputs.OWNER }} required_until=${{ inputs.REQUIRED_UNTIL }}
               echo "Azure resource group created"
             fi
             exit 0

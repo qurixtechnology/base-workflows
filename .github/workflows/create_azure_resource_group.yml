@@ -26,9 +26,8 @@ jobs:
           enable-AzPSSession: true
 
       - name: Check and create
-        uses: AzureCLI@2
+        uses: Azure/CLI@v1
         with:
-          failOnStandardError: true
           inlineScript: |
             #!/bin/bash
             echo "Checking resource group ${{ inputs.AZURE_RG_NAME }}"

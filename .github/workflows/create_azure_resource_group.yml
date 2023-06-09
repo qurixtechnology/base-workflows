@@ -1,4 +1,4 @@
-name: Validate Bicep Infrastructure File
+name: Create Azure resource group
 
 on:
   workflow_call:

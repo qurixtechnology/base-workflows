@@ -15,18 +15,12 @@ on:
       IGNORE_PEP8:
         required: true
         type: string
-      CURRENT_BRANCH:
-        required: true
-        type: string
-        default: ${{ github.ref }}
       TEST_DIR:
         description: "Directory with tests (test_*.py) to run"
-        required: true
         type: string
         default: tests
       VENV_NAME:
         description: "Name of the virtual environment"
-        required: true
         type: string
         default: .venv
 

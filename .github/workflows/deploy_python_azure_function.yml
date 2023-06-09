@@ -12,9 +12,6 @@ on:
       AZURE_FUNCTION_APP_BUILD_PATH:
         required: true
         type: string
-      ENVIRONMENT:
-        required: true
-        type: string
       ARTIFACT_NAME:
         description: "Name of the artifact to deploy, e.g. ingest_function"
         required: true
@@ -27,7 +24,6 @@ on:
 jobs:
   deploy:
     name: Deploy Azure Function
-    environment: ${{ inputs.ENVIRONMENT  }}
 
     runs-on: ubuntu-latest
 
@@ -66,14 +62,14 @@ jobs:
           scm-do-build-during-deployment: true
           enable-oryx-build: true
 
-      - name: "Sync App Settings"
-        uses: azure/appservice-settings@v1
-        id: settings
-        with:
-          app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }}
-          mask-inputs: true
-          #connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}' # <- in case of masked strings
-          general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'
+      #- name: "Sync App Settings"
+      #  uses: azure/appservice-settings@v1
+      #  id: settings
+      #  with:
+      #    app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }}
+      #    mask-inputs: true
+      #    #connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}' # <- in case of masked strings
+      #    general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'
 
       - name: "WebApp URL"
         run: echo "The webapp-url is ${{ steps.settings.outputs.webapp-url }}"

@@ -52,7 +52,7 @@ jobs:
 
       - name: Create and start virtual environment
         run: |
-          python3 -m venv ${{ inputs.VENV_NAME }} --python=python${{ inputs.PYTHONVERSION }}
+          python3 -m venv ${{ inputs.VENV_NAME }} --python=python${{ inputs.PYTHON_VERSION }}
           source ${{ inputs.VENV_NAME }}/bin/activate
 
       - name: Install dependencies

@@ -23,8 +23,6 @@ on:
     secrets:
       AZURE_CREDENTIALS:
         required: true
-      FUNCTION_SETTINGS:
-        required: true
 
 jobs:
   deploy:
@@ -73,7 +71,6 @@ jobs:
         id: settings
         with:
           app-name: ${{ inputs.AZURE_FUNCTION_APP_NAME }}
-          app-settings-json: "${{ secrets.FUNCTION_SETTINGS }}"
           mask-inputs: true
           #connection-strings-json: '${{ secrets.CONNECTION_STRINGS }}' # <- in case of masked strings
           general-settings-json: '{"alwaysOn": "false", "webSocketsEnabled": "true"}'

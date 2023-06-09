@@ -6,6 +6,9 @@ on:
       BICEP_FILE_PATH:
         required: true
         type: string
+      BICEP_PARAMETER_FILE_PATH:
+        required: true
+        type: string
       AZURE_RG_NAME:
         required: true
         type: string
@@ -16,7 +19,7 @@ on:
 
 jobs:
   lint:
-    name: Validate Bicep file and builds Bicep deployment
+    name: Validate file
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +30,7 @@ jobs:
           az bicep build --file ${{ inputs.BICEP_FILE_PATH }}
 
   validate:
-    name: Runs preflight validation on Bicep
+    name: Runs preflight validation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -40,5 +43,6 @@ jobs:
         with:
           resourceGroupName: ${{ inputs.AZURE_RG_NAME }}
           template: ${{ inputs.BICEP_FILE_PATH }}
+          parameters: ${{ inputs.BICEP_PARAMETER_FILE_PATH }}
           scope: resourcegroup
           deploymentMode: Validate

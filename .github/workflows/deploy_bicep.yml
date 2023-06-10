@@ -12,6 +12,9 @@ on:
       AZURE_RG_NAME:
         required: true
         type: string
+      ENVIRONMENT:
+        required: true
+        type: string
 
     secrets:
       AZURE_CREDENTIALS:
@@ -20,6 +23,7 @@ on:
 jobs:
   deploy:
     name: Deploy Bicep
+    environment: ${{ inputs.ENVIRONMENT }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

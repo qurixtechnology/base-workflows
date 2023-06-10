@@ -16,6 +16,9 @@ on:
         description: "Name of the artifact to deploy, e.g. ingest_function"
         required: true
         type: string
+      ENVIRONMENT:
+        required: true
+        type: string
 
     secrets:
       AZURE_CREDENTIALS:
@@ -24,7 +27,7 @@ on:
 jobs:
   deploy:
     name: Deploy Azure Function
-
+    environment: ${{ inputs.ENVIRONMENT }}
     runs-on: ubuntu-latest
 
     steps:

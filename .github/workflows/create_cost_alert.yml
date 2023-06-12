@@ -36,6 +36,7 @@ env:
 
 jobs:
   create:
+    name: Create a resource group budget
     runs-on: ubuntu-latest
     steps:
       - uses: azure/login@v1
@@ -46,12 +47,12 @@ jobs:
         with:
           repository: qurixtechnology/base-workflows
           ref: feature/create-cost-alert
-          path: .github/workflows
+          path: base-worflows/.github/workflows
       - run: ls -la
       - run: |
           az deployment group create \
           --resource-group ${{ inputs.AZURE_RG_NAME }} \
-          --template-file  ./bicep/cost_alert.bicep \
+          --template-file ./.github/workflows/${{ env.COST_ALERT_BICEP }} \
           --parameters budgetName=${{ inputs.BUDGET_NAME }} \
                         amount=${{inputs.BUDGET}} \
                         timeGrain=Monthly \

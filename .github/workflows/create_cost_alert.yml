@@ -44,7 +44,8 @@ jobs:
       - name: Checkout bicep templates
         uses: actions/checkout@v3
         with:
-          repository: qurixtechnology/base-workflows@feature/create-cost-alert
+          repository: qurixtechnology/base-workflows
+          ref: feature/create-cost-alert
           path: .github/workflows
       - run: |
           az deployment group create \

@@ -6,6 +6,9 @@ on:
       AZURE_RG_NAME:
         required: true
         type: string
+      AZURE_LOCATION:
+        required: true
+        type: string
       BUDGET:
         required: true
         type: string
@@ -40,6 +43,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - run: |
           az deployment sub create \
+          --location ${{ inputs.AZURE_LOCATION }} \
           --resource-group ${{ inputs.AZURE_RG_NAME }} \
           --template-file  ${{ env.COST_ALERT_BICEP }}\
           --parameters bugdetName=${{ inputs.BUDGET_NAME}} \

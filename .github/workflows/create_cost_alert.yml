@@ -58,3 +58,6 @@ jobs:
                         secondThreshold=${{ inputs.SECOND_THRESHOLD}} \
                         contactEmails='("administration@qurix.tech",)' \
           --mode incremental
+      - name: Summary
+        run: |
+          echo "### 💰 Budget created ${{ inputs.BUDGET_NAME }}: ${{ inputs.BUDGET}}" >> $GITHUB_STEP_SUMMARY

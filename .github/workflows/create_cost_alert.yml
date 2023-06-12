@@ -41,6 +41,11 @@ jobs:
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Checkout bicep templates
+        uses: actions/checkout@v3
+        with:
+          repository: qurixtechnology/base-workflows
+          path: .github/workflows
       - run: |
           az deployment group create \
           --resource-group ${{ inputs.AZURE_RG_NAME }} \

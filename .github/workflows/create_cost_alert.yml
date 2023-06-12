@@ -47,6 +47,7 @@ jobs:
           repository: qurixtechnology/base-workflows
           ref: feature/create-cost-alert
           path: .github/workflows
+      - run: ls -la
       - run: |
           az deployment group create \
           --resource-group ${{ inputs.AZURE_RG_NAME }} \

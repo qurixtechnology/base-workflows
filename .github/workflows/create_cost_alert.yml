@@ -1,0 +1,53 @@
+name: Create Azure cost alert
+
+on:
+  workflow_call:
+    inputs:
+      AZURE_RG_NAME:
+        required: true
+        type: string
+      BUDGET:
+        required: true
+        type: string
+      BUDGET_NAME:
+        required: true
+        type: string
+      START_DATE:
+        required: true
+        type: string
+      FIRST_THRESHOLD:
+        required: false
+        type: string
+        default: "60"
+      SECOND_THRESHOLD:
+        required: false
+        type: string
+        default: "100"
+
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+env:
+  COST_ALERT_BICEP: ./bicep/cost_alert.bicep
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - run: |
+          az deployment sub create \
+          --resource-group ${{ inputs.AZURE_RG_NAME }} \
+          --template-file  ${{ env.COST_ALERT_BICEP }}\
+          --parameters bugdetName=${{ inputs.BUDGET_NAME}} \
+                        amount=${{ inputs.BUDGET }} \
+                        timeGrain='Monthly' \
+                        startDate=${{ inputs.START_DATE}} \
+                        firstThreshold=${{ inputs.FIRST_THRESHOLD}} \
+                        secondThreshold=${{ inputs.SECOND_THRESHOLD }} \
+                        contactEmails=[administration@qurix.tech] \
+                        resourceGroupFilterValues=[${{inputs.AZURE_RG_NAME}}] \
+          --mode incremental

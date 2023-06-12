@@ -1,0 +1,57 @@
+name: Create Azure resource group
+
+on:
+  workflow_call:
+    inputs:
+      AZURE_RG_NAME:
+        required: true
+        type: string
+      AZURE_RG_LOCATION:
+        required: true
+        type: string
+      OWNER:
+        required: true
+        type: string
+      USE_CASE:
+        required: true
+        type: string
+      REQUIRED_UNTIL:
+        required: true
+        type: string
+        default: "9999-12-31"
+
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+
+jobs:
+  create:
+    name: Create resource group
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
+
+      - name: Check and create
+        uses: Azure/CLI@v1
+        with:
+          inlineScript: |
+            #!/bin/bash
+            echo "Checking resource group ${{ inputs.AZURE_RG_NAME }}"
+            if $(az group exists --name ${{ inputs.AZURE_RG_NAME }}) ; then
+              echo "Azure resource group already exists, skipping creation..."
+            else
+              az group create --name ${{ inputs.AZURE_RG_NAME }} \
+                --location ${{ inputs.AZURE_RG_LOCATION }} \
+                --tags owner=${{ inputs.OWNER }} required_until=${{ inputs.REQUIRED_UNTIL }} use_case=${{ inputs.USE_CASE }}
+              echo "Azure resource group created"
+            fi
+            exit 0
+      - name: Summary
+        run: |
+            echo "### 🏗️ Resource group ${{ inputs.AZURE_RG_NAME }}" >> $GITHUB_STEP_SUMMARY
+      # Add budget restrictions
+            

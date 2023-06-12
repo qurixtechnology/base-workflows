@@ -2,17 +2,27 @@
 
 Base reusable workflows for [Github Actions](https://docs.github.com/en/actions/using-workflows/reusing-workflows).
 
-All can be found unter `.github/workflow`
+## List of worfklows
 
-## Terraform
+### Build Python Tests
 
-  - `build_deploy_terraform.yml`: Workflow for terraform deployments
-  
-## Azure Functions: Python
+- `build_python_tests.yml`: runs Python unit tests, linters code.
 
-  - (*build*) `build_python_azure_function.yml`. Builds an Azure Python Function, executes unit tests and uploads .zip artifact
-  - (*deploy*) `deploy_python_azure_function.yml`. Deploys built Python Function to Azure.
+### Build & Deploy Terraform deployment
+
+- `build_deploy_terraform.yml`: workflow for terraform deployments (build + deploy).
+
+### Build Python Azure Function
+
+- `build_python_azure_function.yml`: builds an Azure Python Function, executes unit tests and uploads the `.zip` artifact.
 
 ## Python: Tests
 
-  - `build_python_tests.yml`: Run Python unit tests and linter.
+- `deploy_python_azure_function.yml`: deploys a previously built Python Function to Azure.
+
+> Note: this workflow depends on `build_python_azure_function.yml` pointing at the built `$ARTIFACT_NAME`.
+
+```mermaid
+  graph LR;
+      A["build_python_azure_function"]-->B["deploy_python_azure_function"];
+```

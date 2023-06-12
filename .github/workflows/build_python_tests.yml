@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       ROOT_PATH:
-        description: 'Root directory of the Python'
+        description: "Root directory of the Python"
         required: true
         type: string
         default: .
@@ -16,17 +16,17 @@ on:
         type: string
         default: ${{ github.ref }}
       TEST_DIR:
-        description: 'Directory with tests (test_*.py) to run'
+        description: "Directory with tests (test_*.py) to run"
         required: true
         type: string
         default: tests
       VENV_NAME:
-        description: 'Name of the virtual environment'
+        description: "Name of the virtual environment"
         required: true
         type: string
         default: .venv
       IGNORE_PEP8:
-        description: 'Specific PEP8 guidelines that can be ignored, e.g.: E501,W191'
+        description: "Specific PEP8 guidelines that can be ignored, e.g.: E501,W191"
         required: true
         type: string
         default: ""
@@ -35,7 +35,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-        
+
     defaults:
       run:
         # Working directory for all 'run' steps
@@ -45,16 +45,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python 
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ inputs.PYTHON_VERSION }}
 
       - name: Create and start virtual environment
         run: |
-          python3 -m venv ${{ inputs.VENV_NAME }}
+          python3 -m venv ${{ inputs.VENV_NAME }} --python=python${{ inputs.PYTHON_VERSION }}
           source ${{ inputs.VENV_NAME }}/bin/activate
-      
+
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
@@ -74,8 +74,7 @@ jobs:
         run: |
           python3 -m pytest ${{ inputs.TEST_DIR }} --cov --cov-report xml:coverage.xml --cov-config=.coveragerc
 
-      - name: Check files
+      - name: List files
         run: |
           pwd
           ls -l .
-         

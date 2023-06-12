@@ -38,12 +38,6 @@ param contactEmails array = [
   'administration@qurix.tech'
 ]
 
-//@description('The set of values for the resource group filter.')
-//param resourceGroupFilterValues array
-
-//@description('The set of values for the meter category filter.')
-//param meterCategoryFilterValues array
-
 resource budget 'Microsoft.Consumption/budgets@2021-10-01' = {
   name: budgetName
   properties: {

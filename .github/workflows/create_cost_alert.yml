@@ -36,7 +36,7 @@ env:
 
 jobs:
   create:
-    name: Create a resource group budget
+    name: Create resource group budget
     runs-on: ubuntu-latest
     steps:
       - uses: azure/login@v1
@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: qurixtechnology/base-workflows
-          ref: feature/create-cost-alert
+          ref: v1.1.0
       - run: ls -la
       - run: |
           az deployment group create \
@@ -62,4 +62,4 @@ jobs:
           --mode incremental
       - name: Summary
         run: |
-          echo "### 💰 Budget created ${{ inputs.BUDGET_NAME }}: ${{ inputs.BUDGET}}" >> $GITHUB_STEP_SUMMARY
+          echo "### 💰 Budget created ${{ inputs.BUDGET_NAME }}: ${{ inputs.BUDGET}} EUR/month" >> $GITHUB_STEP_SUMMARY

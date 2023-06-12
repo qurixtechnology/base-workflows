@@ -44,7 +44,6 @@ jobs:
       - run: |
           az deployment sub create \
           --location ${{ inputs.AZURE_LOCATION }} \
-          --resource-group ${{ inputs.AZURE_RG_NAME }} \
           --template-file  ${{ env.COST_ALERT_BICEP }}\
           --parameters bugdetName=${{ inputs.BUDGET_NAME}} \
                         amount=${{ inputs.BUDGET }} \
@@ -53,5 +52,5 @@ jobs:
                         firstThreshold=${{ inputs.FIRST_THRESHOLD}} \
                         secondThreshold=${{ inputs.SECOND_THRESHOLD }} \
                         contactEmails=[administration@qurix.tech] \
-                        resourceGroupFilterValues=[${{inputs.AZURE_RG_NAME}}] \
+                        resourceGroupFilterValues=[${{ inputs.AZURE_RG_NAME }}] \
           --mode incremental

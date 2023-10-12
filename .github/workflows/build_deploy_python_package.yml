@@ -90,6 +90,8 @@ jobs:
           fetch-tags: true
       - name: Fetch and prone tags
         run: git fetch --prune --unshallow --tags
+      - name: Check files
+        run: ls -la
       - name: Get new version release candidate (RC)
         if: endsWith(github.ref, 'staging')
         id: gnvertest

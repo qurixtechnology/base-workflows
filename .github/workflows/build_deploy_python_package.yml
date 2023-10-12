@@ -29,7 +29,7 @@ on:
             required: true
         PYPI_API_TOKEN_TEST:
             required: true
-        GIT_ACCESS_TOKEN:
+        GITHUB_ACCESS_TOKEN:
             required: true
           
 

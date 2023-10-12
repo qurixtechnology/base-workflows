@@ -83,6 +83,8 @@ jobs:
     outputs:
       new_version: ${{ steps.gnverprod.outputs.new_version }}
 
+    env:
+      base_workflows_dir: base_workflows 
     steps:
       - uses: actions/checkout@v3
         name: Checkout code and tags
@@ -90,14 +92,20 @@ jobs:
           fetch-tags: true
       - name: Fetch and prone tags
         run: git fetch --prune --unshallow --tags
+      - name: Checkout reusable workflow dir
+        uses: actions/checkout@v3
+        with:
+          repository: qurixtechnology/base-workflows
+          token: ${{ secrets.GIT_ACCESS_TOKEN }}
+          path: $base_workflow_dir
       - name: Check files
-        run: ls -la
+        run: ls -la $base_workflows_dir
       - name: Get new version release candidate (RC)
         if: endsWith(github.ref, 'staging')
         id: gnvertest
         run: |
-          old_version=$(bash ${{ github.action_path }}/.github/workflows/release/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'rc' | tail -n 3 | head -1) 
-          new_version=$(bash ${{ github.action_path }}/.github/workflows/release/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'rc' | tail -n 1)
+          old_version=$(bash $base_workflows_dir/.github/workflows/release/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'rc' | tail -n 3 | head -1) 
+          new_version=$(bash $base_workflows_dir/.github/workflows/release/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'rc' | tail -n 1)
           echo $new_version
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
           echo "old_version=$old_version" >> $GITHUB_OUTPUT
@@ -106,8 +114,8 @@ jobs:
         if: endsWith(github.ref, 'main')
         id: gnverprod
         run: |
-          old_version=$(bash ${{ github.action_path }}/.github/workflows/release/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'final' | tail -n 3 | head -1) 
-          new_version=$(bash ${{ github.action_path }}/.github/workflows/release/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'final' | tail -n 1)
+          old_version=$(bash $base_workflows_dir/.github/workflows/release/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'final' | tail -n 3 | head -1) 
+          new_version=$(bash $base_workflows_dir/.github/workflows/release/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'final' | tail -n 1)
           echo $new_version
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
           echo "old_version=$old_version" >> $GITHUB_OUTPUT
@@ -123,14 +131,14 @@ jobs:
       - name: Update __version__.py file and create release candidate (RC) tag in test
         if: endsWith(github.ref, 'staging')
         run: |
-          python ${{ github.action_path }}/.github/workflows/release/set_version.py '${{ inputs.PACKAGE_VERSION_DIR }}' '${{ steps.gnvertest.outputs.new_version }}'
+          python $base_workflows_dir/.github/workflows/release/set_version.py '${{ inputs.PACKAGE_VERSION_DIR }}' '${{ steps.gnvertest.outputs.new_version }}'
           git tag ${{ steps.gnvertest.outputs.new_version }}
           git push --tags
           git push origin ${{ steps.gnvertest.outputs.new_version }}
       - name: Update __version__.py file and create new tag in main
         if: endsWith(github.ref, 'main')
         run: |
-          python ${{ github.action_path }}/.github/workflows/release/set_version.py '${{ inputs.PACKAGE_VERSION_DIR }}' '${{ steps.gnverprod.outputs.new_version }}'
+          python $base_workflows_dir/.github/workflows/release/set_version.py '${{ inputs.PACKAGE_VERSION_DIR }}' '${{ steps.gnverprod.outputs.new_version }}'
           git tag ${{ steps.gnverprod.outputs.new_version }}
           git push --tags
           git push origin ${{ steps.gnverprod.outputs.new_version }}

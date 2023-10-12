@@ -11,6 +11,17 @@
 
 ### Fixed (list of fixes)
 ```
+## v1.3.1
+
+### Fixed
+
+- Point to correct path in release scripts
+
+## v1.3
+
+### Added
+
+- Workflow for Python packages Github Actions
 
 ## v1.0 (2023-06-12)
 

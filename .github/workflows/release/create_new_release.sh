@@ -4,7 +4,8 @@ bump_type=$1
 release_type=$2
 
 git fetch --tags origin
-curr_tag="`git describe --abbrev=0 --tags 2>/dev/null`"
+# get tags across all branches, not just the current branch
+curr_tag=$(git describe --tags `git rev-list --tags --max-count=1` | awk 'NR==1')
 
 if [ "$bump_type" == "chore" ]; then 
     echo "Tagged with:"

@@ -7,6 +7,7 @@ from git import Repo
 
 class BumpType(str, Enum):
     CHORE = "chore"
+    PATCH = "patch"
     MINOR = "minor"
     MAJOR = "major"
 
@@ -34,6 +35,7 @@ def get_current_tag() -> str:
     """
     repo = Repo(get_git_root(), search_parent_directories=True)
     tags = [tag for tag in repo.tags]
+
     if len(tags) == 0:
         return ""
     return tags[-1]
@@ -71,7 +73,7 @@ def bump_tag(current_tag: str, bump_type: BumpType, release_type: ReleaseType) -
     if len(current_tag) <= 5 or "v" not in current_tag:
         raise ValueError(f"Error parsing current tag {current_tag}")
 
-    current_version = current_tag.replace("v", "")[0:5]
+    current_version = current_tag.replace("v", "").split("rc")[0]
     if is_current_tag_rc(current_tag):
         rc_bit = int(current_tag.split("rc")[1])
     else:

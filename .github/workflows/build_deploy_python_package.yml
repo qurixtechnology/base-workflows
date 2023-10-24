@@ -110,8 +110,8 @@ jobs:
         if: endsWith(github.ref, 'staging')
         id: gnvertest
         run: |
-          old_version=$(bash ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'rc' | tail -n 3 | head -1) 
-          new_version=$(bash ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'rc' | tail -n 1)
+          old_version=$(python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/get_new_release.py '${{ needs.get-bump-type.outputs.bump_type }}' 'rc' | tail -n 3 | head -1) 
+          new_version=$(python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/get_new_release.py '${{ needs.get-bump-type.outputs.bump_type }}' 'rc' | tail -n 1)
           echo $new_version
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
           echo "old_version=$old_version" >> $GITHUB_OUTPUT
@@ -120,8 +120,8 @@ jobs:
         if: endsWith(github.ref, 'main')
         id: gnverprod
         run: |
-          old_version=$(bash ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'final' | tail -n 3 | head -1) 
-          new_version=$(bash ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/create_new_release.sh '${{ needs.get-bump-type.outputs.bump_type }}' 'final' | tail -n 1)
+          old_version=$(python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/get_new_release.py '${{ needs.get-bump-type.outputs.bump_type }}' 'final' | tail -n 3 | head -1) 
+          new_version=$(python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/get_new_release.py '${{ needs.get-bump-type.outputs.bump_type }}' 'final' | tail -n 1)
           echo $new_version
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
           echo "old_version=$old_version" >> $GITHUB_OUTPUT
@@ -133,7 +133,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install setuptools wheel twine pytest typer
+          pip install setuptools wheel twine pytest typer GitPython
       - name: Update __version__.py file and create release candidate (RC) tag in test
         if: endsWith(github.ref, 'staging')
         run: |

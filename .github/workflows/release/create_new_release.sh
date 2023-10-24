@@ -42,7 +42,7 @@ if grep -q "rc" <<< "$curr_tag" && [ "$release_type" == "final" ]; then
 fi
 
 # Just bump rc integer if we are working with release candidates
-if [ "$release_type" == "rc" ]; then 
+if grep -q "rc" <<< "$curr_tag" && [ "$release_type" == "rc" ]; then 
     new_tag="v${curr_version}rc${rc_bit}"
     echo "Tagged with:"
     echo $new_tag
@@ -67,6 +67,14 @@ else
 fi
 
 new_tag="v${curr_major}.${curr_minor}.${curr_patch}"
+
+# Create a new release candidate from last tag
+if ! grep -q "rc" <<< "$curr_tag" && [ "$release_type" == "rc" ]; then 
+    new_tag="v${new_tag}rc${rc_bit}"
+    echo "Tagged with:"
+    echo $new_tag
+    exit 0
+fi
 
 echo "Tagged with:"
 echo $new_tag

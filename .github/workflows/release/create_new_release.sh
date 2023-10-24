@@ -70,7 +70,7 @@ new_tag="v${curr_major}.${curr_minor}.${curr_patch}"
 
 # Create a new release candidate from last tag
 if ! grep -q "rc" <<< "$curr_tag" && [ "$release_type" == "rc" ]; then 
-    new_tag="v${new_tag}rc${rc_bit}"
+    new_tag="${new_tag}rc${rc_bit}"
     echo "Tagged with:"
     echo $new_tag
     exit 0

@@ -106,6 +106,14 @@ jobs:
 
       - name: Check files
         run: ls -la ${{ env.BASE_WORKFLOWS_DIR }}
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '${{ inputs.PYTHON_VERSION }}'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine pytest typer GitPython
       - name: Get new version release candidate (RC)
         if: endsWith(github.ref, 'staging')
         id: gnvertest
@@ -126,14 +134,6 @@ jobs:
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
           echo "old_version=$old_version" >> $GITHUB_OUTPUT
           echo "🚀 New version: $new_version" >> $GITHUB_STEP_SUMMARY
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '${{ inputs.PYTHON_VERSION }}'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel twine pytest typer GitPython
       - name: Update __version__.py file and create release candidate (RC) tag in test
         if: endsWith(github.ref, 'staging')
         run: |

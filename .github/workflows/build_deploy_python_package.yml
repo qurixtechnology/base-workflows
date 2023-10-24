@@ -180,7 +180,7 @@ jobs:
         run: |
           echo "## What has changed?" > "${{ github.workspace }}-CHANGELOG.txt"
           echo "${{ github.event.head_commit.message}}" >> "${{ github.workspace }}-CHANGELOG.txt"
-          echo "**Full Changelog**: ${{ github.repository }}/compare/${{ steps.gnverprod.outputs.old_version }}...${{ steps.gnverprod.outputs.new_version }}" >> "${{ github.workspace }}-CHANGELOG.txt"
+          echo "**Full Changelog**: www.github.com/${{ github.repository }}/compare/${{ steps.gnverprod.outputs.old_version }}...${{ steps.gnverprod.outputs.new_version }}" >> "${{ github.workspace }}-CHANGELOG.txt"
       - name: Release new version
         if: endsWith(github.ref, 'main')
         uses: softprops/action-gh-release@v1

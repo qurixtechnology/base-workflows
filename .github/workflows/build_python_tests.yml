@@ -34,6 +34,10 @@ on:
         description: "Whether to fail job complete job if coverage is below minimum"
         type: boolean
         default: false
+      RUN_INTEGRATION_TESTS:
+        description: "Whether to run integration tests"
+        type: boolean
+        default: false
 
 jobs:
   test:
@@ -63,7 +67,7 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          pip install flake8 pytest pytest-cov
+          pip install flake8 pytest pytest-cov pytest-integration
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements.dev.txt ]; then pip install -r requirements.dev.txt; fi
 
@@ -75,9 +79,15 @@ jobs:
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      - name: Run unit tests and calculate coverage
+      - name: Run unit & integration tests and calculate coverage
+        if: ${{ inputs.RUN_INTEGRATION_TESTS }}
         run: |
           python3 -m pytest ${{ inputs.TEST_DIR }} --cov --cov-report xml:coverage.xml --cov-config=.coveragerc
+
+      - name: Run unit tests and calculate coverage
+        if: ${{ !inputs.RUN_INTEGRATION_TESTS }}
+        run: |
+          python3 -m pytest --without-integration ${{ inputs.TEST_DIR }} --cov --cov-report xml:coverage.xml --cov-config=.coveragerc
 
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0

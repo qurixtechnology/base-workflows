@@ -3,6 +3,7 @@ from enum import Enum
 
 import typer
 from git import Repo
+from packaging import version
 
 
 class BumpType(str, Enum):
@@ -34,10 +35,10 @@ def get_current_tag() -> str:
         str: current tag, e.g. "v0.1.0", "", "v0.1.0rc2"
     """
     repo = Repo(get_git_root(), search_parent_directories=True)
-    tags = [tag for tag in repo.tags]
-
+    tags = [str(tag) for tag in repo.tags]
     if len(tags) == 0:
         return ""
+    tags.sort(key=lambda x: version.Version(x))
     return tags[-1]
 
 

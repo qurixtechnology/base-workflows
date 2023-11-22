@@ -7,31 +7,30 @@ concurrency:
 on:
   workflow_call:
     inputs:
-        PYTHON_VERSION:
-          required: true
-          type: string
-        BUILD_PATH:
-          required: true
-          type: string
-        IGNORE_PEP8:
-          required: true
-          type: string
-        TEST_DIR:
-          description: "Directory with tests (test_*.py) to run"
-          type: string
-          default: tests
-        PACKAGE_VERSION_DIR:
-          required: true
-          type: string
+      PYTHON_VERSION:
+        required: true
+        type: string
+      BUILD_PATH:
+        required: true
+        type: string
+      IGNORE_PEP8:
+        required: true
+        type: string
+      TEST_DIR:
+        description: "Directory with tests (test_*.py) to run"
+        type: string
+        default: tests
+      PACKAGE_VERSION_DIR:
+        required: true
+        type: string
 
     secrets:
-        PYPI_API_TOKEN:
-            required: true
-        PYPI_API_TOKEN_TEST:
-            required: true
-        GITHUB_ACCESS_TOKEN:
-            required: true
-          
+      PYPI_API_TOKEN:
+        required: true
+      PYPI_API_TOKEN_TEST:
+        required: true
+      GITHUB_ACCESS_TOKEN:
+        required: true
 
 jobs:
   get-bump-type:
@@ -56,10 +55,10 @@ jobs:
             echo "bump_type=major" >> $GITHUB_OUTPUT
           elif [[ $commit_message == *"fix"* ]]; then
             echo "bump_type=patch" >> $GITHUB_OUTPUT
-          elif [[ $commit_message == *"feat"* ]]; then
-            echo "bump_type=minor" >> $GITHUB_OUTPUT
-          else
+          elif [[ $commit_message == *"chore"* ]]; then
             echo "bump_type=chore" >> $GITHUB_OUTPUT
+          else
+            echo "bump_type=minor" >> $GITHUB_OUTPUT
           fi
       - name: Log bump type
         run: |
@@ -108,7 +107,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '${{ inputs.PYTHON_VERSION }}'
+          python-version: "${{ inputs.PYTHON_VERSION }}"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip

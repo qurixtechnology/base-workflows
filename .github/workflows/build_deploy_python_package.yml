@@ -33,9 +33,6 @@ on:
       GITHUB_ACCESS_TOKEN:
         required: true
 
-permissions:
-  contents: write
-
 jobs:
   get-bump-type:
     name: Get bump type

@@ -102,6 +102,7 @@ jobs:
           repository: qurixtechnology/base-workflows
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           path: ${{ env.BASE_WORKFLOWS_DIR }}
+          ref: main
       - name: Check files
         run: ls -la ${{ env.BASE_WORKFLOWS_DIR }}
       - name: Set up Python

@@ -1,4 +1,4 @@
-name: Build and Upload Python Package
+name: Build and publish Python package
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref != 'refs/heads/main' && github.ref || github.run_id }}-${{ github.event_name }}
@@ -25,9 +25,10 @@ on:
         type: string
 
     secrets:
-      PYPI_API_TOKEN:
+      PACKAGE_REPOSITORY_TOKEN:
         required: true
-      PYPI_API_TOKEN_TEST:
+      PACKAGE_REPOSITORY_URL:
+        description: "Package repository url, e.g. https://pkgs.dev.azure.com/{ AZURE_DEVOPS_ORG }/_packaging/{ AZURE_DEVOPS_FEED }/pypi/upload"
         required: true
       GITHUB_ACCESS_TOKEN:
         required: true
@@ -65,7 +66,6 @@ jobs:
           echo "### Bump type: ${{ steps.bumpt.outputs.bump_type }}" >> $GITHUB_STEP_SUMMARY
 
   test:
-    # Run tests for all branches
     name: Run unit tests
     if: endsWith(github.ref, 'main') != true && endsWith(github.ref, 'staging') != true
     uses: ./.github/workflows/build_python_tests.yml
@@ -137,38 +137,37 @@ jobs:
         if: endsWith(github.ref, 'staging')
         run: |
           python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/set_version.py '${{ inputs.PACKAGE_VERSION_DIR }}' '${{ steps.gnvertest.outputs.new_version }}'
-          git tag ${{ steps.gnvertest.outputs.new_version }}
-          git push --tags
-          git push origin ${{ steps.gnvertest.outputs.new_version }}
       - name: Update __version__.py file and create new tag in main
         if: endsWith(github.ref, 'main')
         run: |
           python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/set_version.py '${{ inputs.PACKAGE_VERSION_DIR }}' '${{ steps.gnverprod.outputs.new_version }}'
-          git tag ${{ steps.gnverprod.outputs.new_version }}
-          git push --tags
-          git push origin ${{ steps.gnverprod.outputs.new_version }}
-      - name: Build and publish to PyPI test
-        if: endsWith(github.ref, 'staging')
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN_TEST }}
+      - name: Build package and check distribution
         run: |
           python setup.py sdist bdist_wheel
           twine check dist/*
-          twine upload --repository testpypi dist/*
-      - name: Build and publish to PyPI prod
-        if: endsWith(github.ref, 'main')
+      - name: Publish to package repository
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PACKAGE_REPOSITORY_TOKEN }}
         run: |
-          python setup.py sdist bdist_wheel
-          twine upload dist/*
+          twine upload --repository-url ${{ secrets.PACKAGE_REPOSITORY_URL }} dist/*
       - name: Store distribution packages
         uses: actions/upload-artifact@v3
         with:
           name: python-package-distributions
           path: dist/
+      - name: Update repository tags (test)
+        if: endsWith(github.ref, 'main')
+        run: |
+          git tag ${{ steps.gnverprod.outputs.new_version }}
+          git push --tags
+          git push origin ${{ steps.gnverprod.outputs.new_version }}
+      - name: Update repository tags (test)
+        if: endsWith(github.ref, 'main')
+        run: |
+          git tag ${{ steps.gnvertest.outputs.new_version }}
+          git push --tags
+          git push origin ${{ steps.gnvertest.outputs.new_version }}
       - name: Generate first Changelog
         if: (endsWith(github.ref, 'main') && contains(${{ steps.gnverprod.outputs.new_version }}, 'v0.1.0'))
         run: |

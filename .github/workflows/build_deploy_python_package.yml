@@ -136,7 +136,7 @@ jobs:
       - name: Update __version__.py file and create release candidate (RC) tag in test
         if: endsWith(github.ref, 'staging')
         run: |
-          python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/set_version.py '${{ inputs.PACKAGE_VERSION_DIR }}' '${{ steps.gnvertest.outputs.new_version }}
+          python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/set_version.py '${{ inputs.PACKAGE_VERSION_DIR }}' '${{ steps.gnvertest.outputs.new_version }}'
       - name: Update __version__.py file and create new tag in main
         if: endsWith(github.ref, 'main')
         run: |

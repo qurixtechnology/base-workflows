@@ -1,4 +1,4 @@
-name: Build and Upload Python Package
+name: Build and publish Python package
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref != 'refs/heads/main' && github.ref || github.run_id }}-${{ github.event_name }}

@@ -77,8 +77,8 @@ jobs:
       TEST_DIR: ${{ inputs.TEST_DIR }}
       VENV_NAME: .venv
 
-  publish-to-pypi:
-    name: Publish package 📦 to PyPI
+  publish:
+    name: Publish package 📦
     needs: [get-bump-type, test]
     if: always() && ((endsWith(github.ref, 'main') || endsWith(github.ref, 'staging')) || needs.test.result == 'skipped') && !contains(needs.get-bump-type.outputs.bump_type, 'chore')
     runs-on: ubuntu-latest

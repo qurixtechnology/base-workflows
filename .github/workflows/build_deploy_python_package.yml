@@ -23,6 +23,10 @@ on:
       PACKAGE_VERSION_DIR:
         required: true
         type: string
+      UPLOAD_PACKAGE:
+        required: false
+        type: boolean
+        default: false
 
     secrets:
       PACKAGE_REPOSITORY_TOKEN:
@@ -103,8 +107,6 @@ jobs:
           token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
           path: ${{ env.BASE_WORKFLOWS_DIR }}
           ref: main
-      - name: Check files
-        run: ls -la ${{ env.BASE_WORKFLOWS_DIR }}
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -146,6 +148,7 @@ jobs:
           python setup.py sdist bdist_wheel
           twine check dist/*
       - name: Publish to package repository
+        if: ${{ inputs.UPLOAD_PACKAGE }}
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PACKAGE_REPOSITORY_TOKEN }}

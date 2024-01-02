@@ -13,9 +13,6 @@ on:
       BUILD_PATH:
         required: true
         type: string
-      IGNORE_PEP8:
-        required: true
-        type: string
       TEST_DIR:
         description: "Directory with tests (test_*.py) to run"
         type: string
@@ -77,7 +74,6 @@ jobs:
       PYTHON_VERSION: ${{ inputs.PYTHON_VERSION }}
       ROOT_PATH: ${{ inputs.BUILD_PATH }}
       CURRENT_BRANCH: ${{ github.head_ref }}
-      IGNORE_PEP8: ${{ inputs.IGNORE_PEP8 }}
       TEST_DIR: ${{ inputs.TEST_DIR }}
       VENV_NAME: .venv
 

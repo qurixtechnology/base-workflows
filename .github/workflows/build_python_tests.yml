@@ -73,8 +73,8 @@ jobs:
 
       - name: Lint with ruff
         run: |
-          # stop the build if there are Python syntax errors or undefined names
-          ruff check *.py
+          # This assumes that a ruff.toml or pyproject.toml is included. If not a default configuration is taken
+          ruff check .
 
       - name: Run unit & integration tests and calculate coverage
         if: ${{ inputs.RUN_INTEGRATION_TESTS }}

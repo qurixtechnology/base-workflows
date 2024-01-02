@@ -25,11 +25,6 @@ on:
         required: true
         type: string
         default: .venv
-      IGNORE_PEP8:
-        description: "Specific PEP8 guidelines that can be ignored, e.g.: E501,W191"
-        required: true
-        type: string
-        default: ""
       FAIL_MIN_COVERAGE:
         description: "Whether to fail job complete job if coverage is below minimum"
         type: boolean

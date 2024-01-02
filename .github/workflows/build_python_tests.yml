@@ -62,7 +62,7 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install ruff pytest pytest-cov pytest-integration
+          python3 -m pip install ruff pytest pytest-cov pytest-integration mypy black isort
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements.dev.txt ]; then pip install -r requirements.dev.txt; fi
 
@@ -70,6 +70,15 @@ jobs:
         run: |
           # This assumes that a ruff.toml or pyproject.toml is included. If not a default configuration is taken
           ruff check .
+
+      - name: Mypy (static type check)
+        run: mypy . --exclude ${{ inputs.VENV_NAME }}
+
+      - name: Black check (PEP style check)
+        run: black --check . --exclude ${{ inputs.VENV_NAME }}
+
+      - name: Sorted imports check
+        run: isort --check --profile black .
 
       - name: Run unit & integration tests and calculate coverage
         if: ${{ inputs.RUN_INTEGRATION_TESTS }}

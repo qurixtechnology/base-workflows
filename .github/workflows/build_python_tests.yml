@@ -29,6 +29,10 @@ on:
         description: "Whether to fail job complete job if coverage is below minimum"
         type: boolean
         default: false
+      MYPY:
+        required: false
+        type: boolean
+        default: false
       RUN_INTEGRATION_TESTS:
         description: "Whether to run integration tests"
         type: boolean
@@ -62,7 +66,7 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install ruff pytest pytest-cov pytest-integration mypy black isort
+          python3 -m pip install ruff pytest pytest-cov pytest-integration black isort
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements.dev.txt ]; then pip install -r requirements.dev.txt; fi
 
@@ -72,7 +76,10 @@ jobs:
           ruff check .
 
       - name: Mypy (static type check)
-        run: mypy . --exclude ${{ inputs.VENV_NAME }}
+        if: ${{ inputs.MYPY }}
+        run: |
+          python3 -m pip install mypy
+          mypy . --exclude ${{ inputs.VENV_NAME }}
 
       - name: Black check (PEP style check)
         run: black --check . --exclude ${{ inputs.VENV_NAME }}

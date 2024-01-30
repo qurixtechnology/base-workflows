@@ -11,17 +11,48 @@
 
 ### Fixed (list of fixes)
 ```
-## v1.3.1
 
-### Fixed
+## v2.1.0
 
-- Point to correct path in release scripts
+### Added
+
+- Makes mypy optional
 
 ## v1.3
 
 ### Added
 
 - Workflow for Python packages Github Actions
+
+## v2.0.0
+
+### Added
+
+- Adds mypy, black and ruff as linter
+
+## v1.3.1
+
+### Fixed
+
+- Point to correct path in release scripts
+
+## v2.0.1
+
+### Added
+
+- Adds mypy, black and ruff as linters
+
+## v1.3
+
+### Added
+
+- Workflow for Python packages Github Actions
+
+## v1.3
+
+### Added
+
+- Workflow for Python packages Github Action
 
 ## v1.0 (2023-06-12)
 

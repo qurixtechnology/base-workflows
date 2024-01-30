@@ -20,6 +20,10 @@ on:
       PACKAGE_VERSION_DIR:
         required: true
         type: string
+      MYPY:
+        required: false
+        type: boolean
+        default: false
       UPLOAD_PACKAGE:
         required: false
         type: boolean
@@ -76,6 +80,7 @@ jobs:
       CURRENT_BRANCH: ${{ github.head_ref }}
       TEST_DIR: ${{ inputs.TEST_DIR }}
       VENV_NAME: .venv
+      MYPY: ${{ inputs.MYPY }}
 
   publish:
     name: Publish package 📦

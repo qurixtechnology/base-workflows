@@ -167,7 +167,7 @@ jobs:
           git push --tags
           git push origin ${{ steps.gnverprod.outputs.new_version }}
       - name: Update repository tags (test)
-        if: endsWith(github.ref, 'main')
+        if: endsWith(github.ref, 'staging')
         run: |
           git tag ${{ steps.gnvertest.outputs.new_version }}
           git push --tags
@@ -178,11 +178,20 @@ jobs:
           echo "## First release" > "${{ github.workspace }}-CHANGELOG.txt"
           echo "${{ github.event.head_commit.message}}" >> "${{ github.workspace }}-CHANGELOG.txt"
       - name: Generate Changelog
-        if: (endsWith(github.ref, 'main') && !contains(${{ steps.gnverprod.outputs.new_version }}, 'v0.1.0'))
+        if: (endsWith(github.ref, 'main') | endsWith(github.ref, 'staging')  && !contains(${{ steps.gnverprod.outputs.new_version }}, 'v0.1.0'))
         run: |
           echo "## What has changed?" > "${{ github.workspace }}-CHANGELOG.txt"
           echo "${{ github.event.head_commit.message}}" >> "${{ github.workspace }}-CHANGELOG.txt"
           echo "**Full Changelog**: www.github.com/${{ github.repository }}/compare/${{ steps.gnverprod.outputs.old_version }}...${{ steps.gnverprod.outputs.new_version }}" >> "${{ github.workspace }}-CHANGELOG.txt"
+      - name: Release new version (test)
+        if: endsWith(github.ref, 'staging')
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ steps.gnvertest.outputs.new_version }}
+          tag_name: ${{ steps.gnvertest.outputs.new_version }}
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          prerelease: true
+          #files: # if there are files
       - name: Release new version
         if: endsWith(github.ref, 'main')
         uses: softprops/action-gh-release@v1

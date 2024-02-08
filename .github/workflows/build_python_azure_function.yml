@@ -29,7 +29,7 @@ on:
         default: false
 
     secrets:
-      GITHUB_PAT_TOKEN:
+      GITHUB_ACCESS_TOKEN:
         required: true
 env:
   OUTPUT_DIR: output
@@ -63,7 +63,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
           pip install ruff pytest pytest-cov
-          if [ -f requirements.template.txt ]; then sed 's/@PAT_TOKEN/${{ secrets.GITHUB_PAT_TOKEN }}/g;s/@ORGANIZATION/qurixtechnology/g' requirements.template.txt > requirements.txt; fi
+          if [ -f requirements.template.txt ]; then sed 's/@PAT_TOKEN/${{ secrets.GITHUB_ACCESS_TOKEN }}/g;s/@ORGANIZATION/qurixtechnology/g' requirements.template.txt > requirements.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements.dev.txt ]; then pip install -r requirements.dev.txt; fi
 

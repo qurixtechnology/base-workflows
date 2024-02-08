@@ -28,6 +28,9 @@ on:
         type: boolean
         default: false
 
+    secrets:
+      GITHUB_PAT_TOKEN:
+        required: true
 env:
   OUTPUT_DIR: output
   ZIP_FILE_NAME: ${{ inputs.ARTIFACT_NAME }}.zip
@@ -39,7 +42,6 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        #Working directory for all 'run' steps
         working-directory: ${{ inputs.BUILD_PATH }}
 
     steps:
@@ -60,17 +62,14 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          pip install flake8 pytest pytest-cov
+          pip install ruff pytest pytest-cov
+          if [ -f requirements.template.txt ]; then sed 's/@PAT_TOKEN/${{ secrets.GITHUB_PAT_TOKEN }}/g;s/@ORGANIZATION/qurixtechnology/g' requirements.template.txt > requirements.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements.dev.txt ]; then pip install -r requirements.dev.txt; fi
 
-      - name: Lint with flake8
+      - name: Lint with ruff
         run: |
-          # Stop build if there are any Python syntax errors, undefined names or other PEP8 violations
-          flake8 . --exclude ${{ inputs.VENV_NAME }},worker_venv,.python_packages --ignore=${{ inputs.IGNORE_PEP8 }}
-
-          # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          ruff check .
 
       - name: Run unit tests and calculate coverage
         run: |

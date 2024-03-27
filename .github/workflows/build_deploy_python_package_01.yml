@@ -37,6 +37,11 @@ on:
         required: true
       GITHUB_ACCESS_TOKEN:
         required: true
+      PAT_TOKEN:
+        required: true
+      ORGANIZATION:
+        required: true
+
 
 jobs:
   get-bump-type:

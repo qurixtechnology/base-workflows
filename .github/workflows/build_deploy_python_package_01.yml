@@ -86,6 +86,8 @@ jobs:
       TEST_DIR: ${{ inputs.TEST_DIR }}
       VENV_NAME: .venv
       MYPY: ${{ inputs.MYPY }}
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      ORGANIZATION: ${{ secrets.ORGANIZATION }}
 
   publish:
     name: Publish package 📦

@@ -28,6 +28,13 @@ on:
         required: false
         type: boolean
         default: false
+      PAT_TOKEN:
+        required: true
+        type: string
+      ORGANIZATION:
+        required: true
+        type: string
+
 
     secrets:
       PACKAGE_REPOSITORY_TOKEN:
@@ -37,11 +44,6 @@ on:
         required: true
       GITHUB_ACCESS_TOKEN:
         required: true
-      PAT_TOKEN:
-        required: true
-      ORGANIZATION:
-        required: true
-
 
 jobs:
   get-bump-type:
@@ -86,8 +88,8 @@ jobs:
       TEST_DIR: ${{ inputs.TEST_DIR }}
       VENV_NAME: .venv
       MYPY: ${{ inputs.MYPY }}
-      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-      ORGANIZATION: ${{ secrets.ORGANIZATION }}
+      PAT_TOKEN: ${{ inputs.PAT_TOKEN }}
+      ORGANIZATION: ${{ inputs.ORGANIZATION }}
 
   publish:
     name: Publish package 📦

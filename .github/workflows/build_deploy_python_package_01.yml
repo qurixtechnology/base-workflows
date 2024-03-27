@@ -1,0 +1,202 @@
+name: Build and publish Python package
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref != 'refs/heads/main' && github.ref || github.run_id }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+on:
+  workflow_call:
+    inputs:
+      PYTHON_VERSION:
+        required: true
+        type: string
+      BUILD_PATH:
+        required: true
+        type: string
+      TEST_DIR:
+        description: "Directory with tests (test_*.py) to run"
+        type: string
+        default: tests
+      PACKAGE_VERSION_DIR:
+        required: true
+        type: string
+      MYPY:
+        required: false
+        type: boolean
+        default: false
+      UPLOAD_PACKAGE:
+        required: false
+        type: boolean
+        default: false
+
+    secrets:
+      PACKAGE_REPOSITORY_TOKEN:
+        required: true
+      PACKAGE_REPOSITORY_URL:
+        description: "Package repository url, e.g. https://pkgs.dev.azure.com/{ AZURE_DEVOPS_ORG }/_packaging/{ AZURE_DEVOPS_FEED }/pypi/upload"
+        required: true
+      GITHUB_ACCESS_TOKEN:
+        required: true
+
+jobs:
+  get-bump-type:
+    name: Get bump type
+    if: endsWith(github.ref, 'main') || endsWith(github.ref, 'staging')
+    runs-on: ubuntu-latest
+    outputs:
+      bump_type: ${{ steps.bumpt.outputs.bump_type }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-tags: true
+      - name: Fetch and prone tags
+        run: git fetch --prune --unshallow --tags
+      - name: Get bump type
+        id: bumpt
+        run: |
+          commit_message='${{ github.event.head_commit.message }}'
+          if [[ $commit_message == *"BREAKING CHANGE"* ]]; then
+            echo "bump_type=major" >> $GITHUB_OUTPUT
+          elif [[ $commit_message == *"fix"* ]]; then
+            echo "bump_type=patch" >> $GITHUB_OUTPUT
+          elif [[ $commit_message == *"chore"* ]]; then
+            echo "bump_type=chore" >> $GITHUB_OUTPUT
+          else
+            echo "bump_type=minor" >> $GITHUB_OUTPUT
+          fi
+      - name: Log bump type
+        run: |
+          echo "### Bump type: ${{ steps.bumpt.outputs.bump_type }}" >> $GITHUB_STEP_SUMMARY
+
+  test:
+    name: Run unit tests
+    if: endsWith(github.ref, 'main') != true && endsWith(github.ref, 'staging') != true
+    uses: ./.github/workflows/build_python_tests_01.yml
+    with:
+      PYTHON_VERSION: ${{ inputs.PYTHON_VERSION }}
+      ROOT_PATH: ${{ inputs.BUILD_PATH }}
+      CURRENT_BRANCH: ${{ github.head_ref }}
+      TEST_DIR: ${{ inputs.TEST_DIR }}
+      VENV_NAME: .venv
+      MYPY: ${{ inputs.MYPY }}
+
+  publish:
+    name: Publish package 📦
+    needs: [get-bump-type, test]
+    if: always() && ((endsWith(github.ref, 'main') || endsWith(github.ref, 'staging')) || needs.test.result == 'skipped') && !contains(needs.get-bump-type.outputs.bump_type, 'chore')
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.gnverprod.outputs.new_version }}
+
+    env:
+      BASE_WORKFLOWS_DIR: base_workflows
+      RELEASE_SCRIPTS_DIR: .github/workflows/release
+
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout code and tags
+        with:
+          fetch-tags: true
+      - name: Fetch and prone tags
+        run: git fetch --prune --unshallow --tags
+      - name: Checkout reusable workflow dir
+        uses: actions/checkout@v3
+        with:
+          repository: qurixtechnology/base-workflows
+          token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+          path: ${{ env.BASE_WORKFLOWS_DIR }}
+          ref: main
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "${{ inputs.PYTHON_VERSION }}"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine pytest typer GitPython
+      - name: Get new version release candidate (RC)
+        if: endsWith(github.ref, 'staging')
+        id: gnvertest
+        run: |
+          old_version=$(python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/get_new_release.py '${{ needs.get-bump-type.outputs.bump_type }}' 'rc' | tail -n 3 | head -1) 
+          new_version=$(python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/get_new_release.py '${{ needs.get-bump-type.outputs.bump_type }}' 'rc' | tail -n 1)
+          echo $new_version
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "old_version=$old_version" >> $GITHUB_OUTPUT
+          echo "🚀 New version: $new_version" >> $GITHUB_STEP_SUMMARY
+      - name: Get new version production
+        if: endsWith(github.ref, 'main')
+        id: gnverprod
+        run: |
+          old_version=$(python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/get_new_release.py '${{ needs.get-bump-type.outputs.bump_type }}' 'final' | tail -n 3 | head -1) 
+          new_version=$(python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/get_new_release.py '${{ needs.get-bump-type.outputs.bump_type }}' 'final' | tail -n 1)
+          echo $new_version
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "old_version=$old_version" >> $GITHUB_OUTPUT
+          echo "🚀 New version: $new_version" >> $GITHUB_STEP_SUMMARY
+      - name: Update __version__.py file and create release candidate (RC) tag in test
+        if: endsWith(github.ref, 'staging')
+        run: |
+          python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/set_version.py '${{ inputs.PACKAGE_VERSION_DIR }}' '${{ steps.gnvertest.outputs.new_version }}'
+      - name: Update __version__.py file and create new tag in main
+        if: endsWith(github.ref, 'main')
+        run: |
+          python ${{ env.BASE_WORKFLOWS_DIR }}/${{ env.RELEASE_SCRIPTS_DIR }}/set_version.py '${{ inputs.PACKAGE_VERSION_DIR }}' '${{ steps.gnverprod.outputs.new_version }}'
+      - name: Build package and check distribution
+        run: |
+          python setup.py sdist bdist_wheel
+          twine check dist/*
+      - name: Publish to package repository
+        if: ${{ inputs.UPLOAD_PACKAGE }}
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PACKAGE_REPOSITORY_TOKEN }}
+        run: |
+          twine upload --repository-url ${{ secrets.PACKAGE_REPOSITORY_URL }} dist/*
+      - name: Store distribution packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Update repository tags (main)
+        if: endsWith(github.ref, 'main')
+        run: |
+          git tag ${{ steps.gnverprod.outputs.new_version }}
+          git push --tags
+          git push origin ${{ steps.gnverprod.outputs.new_version }}
+      - name: Update repository tags (test)
+        if: endsWith(github.ref, 'staging')
+        run: |
+          git tag ${{ steps.gnvertest.outputs.new_version }}
+          git push --tags
+          git push origin ${{ steps.gnvertest.outputs.new_version }}
+      - name: Generate first Changelog
+        if: (endsWith(github.ref, 'main') && contains(${{ steps.gnverprod.outputs.new_version }}, 'v0.1.0'))
+        run: |
+          echo "## First release" > "${{ github.workspace }}-CHANGELOG.txt"
+          echo "${{ github.event.head_commit.message}}" >> "${{ github.workspace }}-CHANGELOG.txt"
+      - name: Generate Changelog
+        if: (endsWith(github.ref, 'main') | endsWith(github.ref, 'staging')  && !contains(${{ steps.gnverprod.outputs.new_version }}, 'v0.1.0'))
+        run: |
+          echo "## What has changed?" > "${{ github.workspace }}-CHANGELOG.txt"
+          echo "${{ github.event.head_commit.message}}" >> "${{ github.workspace }}-CHANGELOG.txt"
+          echo "**Full Changelog**: www.github.com/${{ github.repository }}/compare/${{ steps.gnverprod.outputs.old_version }}...${{ steps.gnverprod.outputs.new_version }}" >> "${{ github.workspace }}-CHANGELOG.txt"
+      - name: Release new version (test)
+        if: endsWith(github.ref, 'staging')
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ steps.gnvertest.outputs.new_version }}
+          tag_name: ${{ steps.gnvertest.outputs.new_version }}
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          prerelease: true
+          #files: # if there are files
+      - name: Release new version
+        if: endsWith(github.ref, 'main')
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ steps.gnverprod.outputs.new_version }}
+          tag_name: ${{ steps.gnverprod.outputs.new_version }}
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          #files: # if there are files

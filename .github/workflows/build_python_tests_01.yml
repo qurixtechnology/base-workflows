@@ -37,6 +37,12 @@ on:
         description: "Whether to run integration tests"
         type: boolean
         default: false
+      PAT_TOKEN:
+        required: true
+        type: string
+      ORGANIZATION:
+        required: true
+        type: string
 
 jobs:
   test:
@@ -65,8 +71,8 @@ jobs:
 
       - name: prepare requirements.txt
         env:
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-          ORGANIZATION: ${{ secrets.ORGANIZATION }}
+          PAT_TOKEN: ${{ inputs.PAT_TOKEN }}
+          ORGANIZATION: ${{ inputs.ORGANIZATION }}
         run: |
           sed 's/@PAT_TOKEN/'"$PAT_TOKEN"'/g;s/@ORGANIZATION/'"$ORGANIZATION"'/g' requirements.template.txt > requirements.txt
 

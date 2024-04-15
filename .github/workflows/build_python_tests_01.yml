@@ -37,12 +37,11 @@ on:
         description: "Whether to run integration tests"
         type: boolean
         default: false
+    secrets:
       PAT_TOKEN:
         required: true
-        type: string
       ORGANIZATION:
         required: true
-        type: string
 
 jobs:
   test:

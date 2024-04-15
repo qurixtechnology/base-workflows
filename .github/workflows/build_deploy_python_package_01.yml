@@ -28,12 +28,6 @@ on:
         required: false
         type: boolean
         default: false
-      PAT_TOKEN:
-        required: true
-        type: string
-      ORGANIZATION:
-        required: true
-        type: string
 
 
     secrets:
@@ -43,6 +37,10 @@ on:
         description: "Package repository url, e.g. https://pkgs.dev.azure.com/{ AZURE_DEVOPS_ORG }/_packaging/{ AZURE_DEVOPS_FEED }/pypi/upload"
         required: true
       GITHUB_ACCESS_TOKEN:
+        required: true
+      PAT_TOKEN:
+        required: true
+      ORGANIZATION:
         required: true
 
 jobs:
@@ -88,8 +86,8 @@ jobs:
       TEST_DIR: ${{ inputs.TEST_DIR }}
       VENV_NAME: .venv
       MYPY: ${{ inputs.MYPY }}
-      PAT_TOKEN: ${{ inputs.PAT_TOKEN }}
-      ORGANIZATION: ${{ inputs.ORGANIZATION }}
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      ORGANIZATION: ${{ secrets.ORGANIZATION }}
 
   publish:
     name: Publish package 📦

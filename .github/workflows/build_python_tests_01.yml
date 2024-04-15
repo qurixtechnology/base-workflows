@@ -70,8 +70,8 @@ jobs:
 
       - name: prepare requirements.txt
         env:
-          PAT_TOKEN: ${{ inputs.PAT_TOKEN }}
-          ORGANIZATION: ${{ inputs.ORGANIZATION }}
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+          ORGANIZATION: ${{ secrets.ORGANIZATION }}
         run: |
           sed 's/@PAT_TOKEN/'"$PAT_TOKEN"'/g;s/@ORGANIZATION/'"$ORGANIZATION"'/g' requirements.template.txt > requirements.txt
 

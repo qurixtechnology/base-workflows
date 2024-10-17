@@ -42,6 +42,9 @@ on:
         required: true
       ORGANIZATION:
         required: true
+      GIT_HOST:
+        required: true
+
 
 jobs:
   test:
@@ -72,6 +75,7 @@ jobs:
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           ORGANIZATION: ${{ secrets.ORGANIZATION }}
+          GIT_HOST: ${{ secrets.GIT_HOST }}
         run: |
           sed 's/@PAT_TOKEN/'"$PAT_TOKEN"'/g;s/@GIT_HOST/'"$GIT_HOST"'/g;s/@ORGANIZATION/'"$ORGANIZATION"'/g' requirements.template.txt > requirements.txt
 

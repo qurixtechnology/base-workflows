@@ -92,6 +92,7 @@ jobs:
     secrets:
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
       ORGANIZATION: ${{ secrets.ORGANIZATION }}
+      GIT_HOST: ${{ secrets.GIT_HOST }}
 
   publish:
     name: Publish package 📦

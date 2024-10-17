@@ -73,7 +73,7 @@ jobs:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           ORGANIZATION: ${{ secrets.ORGANIZATION }}
         run: |
-          sed 's/@PAT_TOKEN/'"$PAT_TOKEN"'/g;s/@ORGANIZATION/'"$ORGANIZATION"'/g' requirements.template.txt > requirements.txt
+          sed 's/@PAT_TOKEN/'"$PAT_TOKEN"'/g;s/@GIT_HOST/'"$GIT_HOST"'/g;s/@ORGANIZATION/'"$ORGANIZATION"'/g' requirements.template.txt > requirements.txt
 
       - name: Install dependencies
         run: |
